@@ -1,0 +1,4 @@
+comake.py
+*.o
+Makefile
+output/
