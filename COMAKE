@@ -1,0 +1,23 @@
+#edit-mode: -*- python -*-
+#coding:utf8
+
+PROTOC('../protobuf/bin/protoc')
+THRIFT('../thrift/bin/thrift')
+
+CXX('g++')
+CXXFLAGS('-D_GNU_SOURCE -D__STDC_LIMIT_MACROS -g -pipe -W -Wall -fPIC -fno-omit-frame-pointer')
+LDFLAGS('-levent -ldl -lpthread -lm -lrt')
+
+DEP('gflags', '1.0.0')
+DEP('glog', '1.0.0')
+#DEP('mysql-connector', '1.0.0')
+DEP('protobuf', '1.0.0')
+#DEP('hiredis', '1.0.0')
+DEP('thrift', '1.0.0')
+#DEP('redis_proxy', '1.0.0')
+#DEP('mysql_proxy', '1.0.0')
+
+sources = GLOB('./interface/*.thrift ./proto/*.proto ./*.cpp ./index/*.cpp ./filter/*.cpp ./merge/*.cpp')
+
+APP('se', sources)
+

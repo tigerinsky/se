@@ -11,6 +11,10 @@
 
 #define TIMEDIFF(s, e)  ((e.tv_sec-s.tv_sec)*1000000 + e.tv_usec - s.tv_usec)
 
+#define DISALLOW_COPY_AND_ASSIGN(TypeName)\
+    TypeName(const TypeName&);\
+    TypeName& operator=(const TypeName&)
+
 const int MAX_PATH_LEN = 128
 #endif
 
