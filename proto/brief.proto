@@ -1,0 +1,17 @@
+package tis;
+
+message Brief {
+    optional int32 id = 1;
+    optional int32 type = 2;
+    optional int32 catalog_id = 3;
+    repeated int32 tag_id = 4; 
+}
+
+message Detail {
+    optional string show_img = 1;
+    optional int32 img_num = 2; 
+    optional int32 uid = 3;
+    optional int32 zan_num = 4;
+    repeated int32 tag = 5;
+}
+
