@@ -18,5 +18,7 @@
 const int MAX_PATH_LEN = 128;
 const int MAX_LINE_LEN = 1024;
 const int MAX_CATALOG_NAME_LEN = 128;
+const int MAX_TAG_NAME_LEN = 128;
+const int MAX_TAG_VALUE_LEN = 128;
 #endif
 

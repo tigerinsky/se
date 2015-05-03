@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "glog/logging.h"
-#include "catalog_data_reader.h"
+#include "tag_data_reader.h"
 
 using std::endl;
 namespace tis {
-    int CatalogDataReader::load() {
+    int TagDataReader::load() {
         string file_name = path_ + "/" + file_;
         FILE* fp = fopen(file_name.c_str(), "r");
         if (fp == NULL) {
@@ -31,25 +31,28 @@ namespace tis {
         return 0;
     }
 
-    int CatalogDataReader::parse_line(const char* buf, int len) {
-        char parent_catalog[MAX_CATALOG_NAME_LEN];
+    int TagDataReader::parse_line(const char* buf, int len) {
         char catalog[MAX_CATALOG_NAME_LEN];
+        char tag_name[MAX_TAG_NAME_LEN];
+        char tag_value[MAX_TAG_VALUE_LEN];
         int32_t id = 0;
-        if (3 == sscanf(buf, "%s\t%s\t%d", parent_catalog, catalog, &id)) {
-            string key(parent_catalog);
-            key.append(catalog);
-            cata_map_[key] = id;
+        if (3 == sscanf(buf, "%s\t%s\t%s\t%d", catalog, tag_name, tag_value,&id)) {
+            string key(catalog);
+            key.append(tag_name);
+            key.append(tag_value);
+            tag_map_[key] = id;
             return 0;
         } else {
             return -1;
         }
     }
 
-    int CatalogDataReader::get_id(const string& parent_catalog,
-            const string& catalog, int32_t* id) {
-        string key = parent_catalog + catalog;
-        CATA_MAP::iterator iter = cata_map_.find(key);
-        if (iter != cata_map_.end()) {
+    int TagDataReader::get_id(const string& catalog,
+            const string& tag_name, const string& tag_value,
+            int32_t* id) {
+        string key = catalog + tag_name + tag_value;
+        TAG_MAP::iterator iter = tag_map_.find(key);
+        if (iter != tag_map_.end()) {
             *id = iter->second;
             return 0;
         } else {
