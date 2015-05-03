@@ -17,7 +17,7 @@ DEP('thrift', '1.0.0')
 #DEP('redis_proxy', '1.0.0')
 #DEP('mysql_proxy', '1.0.0')
 
-sources = GLOB('./interface/*.thrift ./proto/*.proto ./*.cpp ./index/*.cpp ./filter/*.cpp ./merge/*.cpp')
+sources = GLOB('./interface/*.thrift ./proto/*.proto ./base/*.cpp ./filter/*.cpp ./merge/*.cpp ./*.cpp')
 
 APP('se', sources)
 

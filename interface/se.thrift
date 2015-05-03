@@ -32,21 +32,21 @@ struct Item {
 }
 
 struct SeResponse {
-    1: required i32 errno,
+    1: required i32 erro,
     2: optional i32 type,//结果类型,1:素材;2:广场
     3: optional list<Item> content,
 }
 
-struct echoRequest {
+struct EchoRequest {
     1: optional string req,
 }
 
-struct echoResponse {
+struct EchoResponse {
     1: optional string res,
 }
 
-service Se {
+service SeServer {
     SeResponse search(1:SeRequest request),
-    echoResponse heartbeat(1:echoRequest request),
+    EchoResponse heartbeat(1:EchoRequest request),
 }
 
