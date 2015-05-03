@@ -47,6 +47,6 @@ struct echoResponse {
 
 service Se {
     SeResponse search(1:SeRequest request),
-    echoResponse heartbeat(1:echoResponse),
+    echoResponse heartbeat(1:echoRequest request),
 }
 
