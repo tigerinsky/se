@@ -15,6 +15,8 @@
     TypeName(const TypeName&);\
     TypeName& operator=(const TypeName&)
 
-const int MAX_PATH_LEN = 128
+const int MAX_PATH_LEN = 128;
+const int MAX_LINE_LEN = 1024;
+const int MAX_CATALOG_NAME_LEN = 128;
 #endif
 
