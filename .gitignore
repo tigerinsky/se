@@ -2,3 +2,6 @@ comake.py
 *.o
 Makefile
 output/
+*~
+*.swp
+*.swo
