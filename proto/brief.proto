@@ -5,6 +5,8 @@ message Brief {
     optional int32 type = 2;//广场,素材
     optional int32 catalog_id = 3;
     repeated int32 tag_id = 4; 
+    optional uint32 zan_num = 5;
+    optional uint32 comment_num = 6;
 }
 
 message Detail {

@@ -5,19 +5,19 @@ PROTOC('../protobuf/bin/protoc')
 THRIFT('../thrift/bin/thrift')
 
 CXX('g++')
-CXXFLAGS('-D_GNU_SOURCE -D__STDC_LIMIT_MACROS -g -pipe -W -Wall -fPIC -fno-omit-frame-pointer')
-LDFLAGS('-levent -ldl -lpthread -lm -lrt')
+CXXFLAGS('-std=gnu++11 -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -g -pipe -W -Wall -fPIC -fno-omit-frame-pointer')
+LDFLAGS('-lcrypto -levent -ldl -lpthread -lm -lrt')
 
 DEP('gflags', '1.0.0')
 DEP('glog', '1.0.0')
-#DEP('mysql-connector', '1.0.0')
 DEP('protobuf', '1.0.0')
-#DEP('hiredis', '1.0.0')
 DEP('thrift', '1.0.0')
-#DEP('redis_proxy', '1.0.0')
-#DEP('mysql_proxy', '1.0.0')
+DEP('seg', '1.0.2')
+DEP('common_lib', '1.0.3')
 
-sources = GLOB('./interface/*.thrift ./proto/*.proto ./base/*.cpp ./filter/*.cpp ./merge/*.cpp ./*.cpp')
+#se_sources = GLOB('./interface/*.thrift ./proto/*.proto ./base/*.cpp ./filter/*.cpp ./merge/*.cpp ./*.cpp')
+makeindex_sources = GLOB('proto/*.proto ./makeindex/*.cpp')
 
-APP('se', sources)
+APP('makeindex', makeindex_sources)
+#APP('se', se_sources)
 

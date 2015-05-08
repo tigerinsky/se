@@ -20,5 +20,12 @@ const int MAX_LINE_LEN = 1024;
 const int MAX_CATALOG_NAME_LEN = 128;
 const int MAX_TAG_NAME_LEN = 128;
 const int MAX_TAG_VALUE_LEN = 128;
+
+const char INDEX_PREFIX[] = "index"; 
+const char HIT_PREFIX[] = "hit";
+const char TERM_FILE[] = "term";
+const char BRIEF_FILE[] = "brief";
+const char FIELD_CONF[] = "field.conf";
+
 #endif
 

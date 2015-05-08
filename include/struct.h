@@ -2,12 +2,26 @@
 #ifndef __STRUCT_H_
 #define __STRUCT_H_
 
-
 namespace tis {
 
+typedef uint8_t field_t;
+
+typedef struct hit_t {
+    field_t field;
+    uint8_t no;
+    uint32_t offset;
+} hit_t;
+
+typedef struct hit_info_t {
+    field_t field;
+    uint16_t file_no:5;
+    uint16_t num:11; 
+    uint32_t off;
+} hit_info_t;
+
 typedef struct index_t {
-    int32_t obj_id;
-    uint8_t field;
+    uint32_t obj_id;
+    hit_info_t hit_info;
 } index_t;
 
 typedef struct term_t {
