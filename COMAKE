@@ -15,9 +15,9 @@ DEP('thrift', '1.0.0')
 DEP('seg', '1.0.2')
 DEP('common_lib', '1.0.3')
 
-#se_sources = GLOB('./interface/*.thrift ./proto/*.proto ./base/*.cpp ./filter/*.cpp ./merge/*.cpp ./*.cpp')
+se_sources = GLOB("./se/server/thrift/*.thrift ./proto/*.proto ./se/as/*.cpp ./se/bs/*.cpp ./se/da/*.cpp ./se/service/*.cpp ./se/server/thrift/*.cpp ./se/*.cpp")
 makeindex_sources = GLOB('proto/*.proto ./makeindex/*.cpp')
 
 APP('makeindex', makeindex_sources)
-#APP('se', se_sources)
+APP('se', se_sources)
 

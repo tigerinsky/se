@@ -5,8 +5,8 @@
 
 namespace tis {
 
-DECLARE_int32(server_port);
-DECLARE_int32(server_thread_num);
+DECLARE_int32(port);
+DECLARE_int32(thread_num);
 
 }
 #endif
