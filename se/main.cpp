@@ -2,7 +2,6 @@
 #include "glog/logging.h"
 #include "server/thrift/thrift_nonblocking_server.h"
 #include "service/se_service.h"
-
 #include "flag.h"
 
 namespace tis {
@@ -10,6 +9,8 @@ namespace tis {
 DEFINE_int32(port, 9060, "se server port");
 DEFINE_int32(thread_num, 15, "thread pool server handler thread num");
 DEFINE_string(catalog_info_conf, "./conf/catalog_info.conf", "catalog info conf");
+DEFINE_string(segment_dict, "./conf/seg/utf8", "segment dict");
+DEFINE_string(catalog_dict, "./conf/catalog.dict", "catalog dict");
 
 }
 
@@ -20,7 +21,6 @@ void handle_signal(int sig) {
     g_server->stop();
     LOG(INFO) << "kill over!";
 }
-
 int main(int argc, char **argv) {
     int ret = -1;
     ::google::ParseCommandLineFlags(&argc, &argv, false);
@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
         LOG(ERROR) << "init service error, ret["<< ret << "]";
         return 2;
     }
+
     g_server->set_thread_num(tis::FLAGS_thread_num);
     g_server->set_port(tis::FLAGS_port);
     if (ret = g_server->run()) {

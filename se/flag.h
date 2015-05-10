@@ -8,6 +8,8 @@ namespace tis {
 DECLARE_int32(port);
 DECLARE_int32(thread_num);
 DECLARE_string(catalog_info_conf);
+DECLARE_string(segment_dict);
+DECLARE_string(catalog_dict);
 
 }
 #endif

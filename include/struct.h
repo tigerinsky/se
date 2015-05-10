@@ -111,7 +111,6 @@ typedef struct da_output_t {
 } da_output_t;
 }
 // ---- da end ----
-
 }
 
 #endif
