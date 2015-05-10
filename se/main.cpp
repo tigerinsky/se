@@ -12,7 +12,6 @@ DEFINE_int32(thread_num, 15, "thread pool server handler thread num");
 
 }
 
-tis::SeService* g_service = NULL;
 tis::Server* g_server = NULL;
 
 void handle_signal(int sig) {
@@ -31,19 +30,17 @@ int main(int argc, char **argv) {
     signal(SIGQUIT, handle_signal);
     signal(SIGPIPE, SIG_IGN);
 
-    g_service = new(std::nothrow) tis::SeService; 
     g_server = new(std::nothrow) tis::thrift::NonBlockingServer;
-    if (!g_service  || !g_server) {
+    if (!g_server) {
         LOG(ERROR) << "new service, server error"; 
         return 1;
     }
-    if (ret = g_service->init()) {
+    if (ret = tis::SeService::init()) {
         LOG(ERROR) << "init service error, ret["<< ret << "]";
         return 2;
     }
     g_server->set_thread_num(tis::FLAGS_thread_num);
     g_server->set_port(tis::FLAGS_port);
-    g_server->set_se_service(g_service);
     if (ret = g_server->run()) {
         LOG(ERROR) << "run se server error, ret["<< ret <<"]";
         return 3;
