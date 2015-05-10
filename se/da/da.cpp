@@ -1,12 +1,11 @@
+#include<ctype.h>
 #include "da.h"
 #include "../flag.h"
 #include "segment.h"
 #include "../../index/catalog_data_reader.h"
 #include "glog/logging.h"
+//#include <stdio.h>
 
-#include <stdio.h>
-
-//using tis::Segment;
 namespace tis { namespace da {
 
 DA::DA() {
@@ -109,7 +108,7 @@ void DA::normalize_query(std::string &query) {
             query[j] = query[j]+32;
         }
 
-        if (query[j] == '\t' || query[j] == '\n' || query[j] == '\r') {//TODO 换成一个配置，需要替换的空白字符待添加
+        if (isspace(query[j])) {
             query[j] = ' ';
         }
 
