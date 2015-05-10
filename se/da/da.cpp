@@ -63,6 +63,10 @@ fail:
 }
 
 void DA::query_analysis(const da_input_t& input, da_output_t* output) {
+    // 1. normalize query    
+    // 2. word segment
+    // 3. catalog 解析
+
     std::string query = input.query;
     //1:normalize query
     normalize_query(query);

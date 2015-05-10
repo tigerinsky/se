@@ -9,7 +9,23 @@
 namespace tis { namespace thrift {
 
 void ServerIf::search (SeResponse& response, const SeRequest& request) {
-    (void)_service->search();   
+    char buf[1024];
+    se_input_t input;
+    se_output_t output;
+    input.query = request.query;
+    input.pn = request.pn;
+    input.rn = request.rn;
+    snprintf(buf, 
+             1024, 
+             "type(%d,%d)^catalog(%d,%d)",
+             request.type, request.type,
+             request.catalog, request.catalog);
+    input.numeric_filter = buf;
+    for (auto ite = request.tag.begin(); ite != request.tag.end(); ++ite) {
+        input.tag_filter.append("^");
+        input.tag_filter.append(ite->c_str()); 
+    }
+    SeService::search(input, &output);   
 }
 
 NonBlockingServer::~NonBlockingServer() {
@@ -30,10 +46,6 @@ using apache::thrift::concurrency::ThreadManager;
 using apache::thrift::concurrency::PosixThreadFactory;
 using apache::thrift::server::TNonblockingServer;
 using apache::thrift::TException;
-    if (!_se_service) {
-        LOG(ERROR) << "ThriftNonblockingServer: empty service";
-        return 1; 
-    }
     if (_is_stop) {
         LOG(ERROR) << "ThriftNonblockingServer: server has stopped";
         return 5; 
@@ -44,7 +56,7 @@ using apache::thrift::TException;
         //protocol
         shared_ptr<TProtocolFactory> protocol_factory(new TBinaryProtocolFactory());
         //register processor
-        shared_ptr<ServerIf> handler(new ServerIf(_se_service));
+        shared_ptr<ServerIf> handler(new ServerIf());
         shared_ptr<TProcessor> processor(new SeServerProcessor(handler));
         // handler thread pool
         shared_ptr<ThreadManager> 

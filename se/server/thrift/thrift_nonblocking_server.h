@@ -25,12 +25,9 @@ private:
 
 class ServerIf : public SeServerIf {
 public:
-    explicit ServerIf(SeService* s) { _service = s; }
+    ServerIf() {}
     virtual ~ServerIf() {}
     void search(SeResponse& response, const SeRequest& request);
-
-private:
-    SeService* _service;
 };
 
 }}
