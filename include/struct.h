@@ -30,7 +30,6 @@ typedef struct term_t {
     int32_t offset;
     int32_t num;
 } term_t;
-
 }
 
 #endif

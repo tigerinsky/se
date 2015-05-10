@@ -4,7 +4,7 @@
 #define R_ASSERT(EXP, RET)\
     do {\
         if (!(EXP)) {\
-            LOG(INFO) << #EXP << " failed " << endl;\
+            LOG(INFO) << #EXP << " failed ";\
             return RET;\
         }\
     }while(0)

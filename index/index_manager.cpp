@@ -6,6 +6,7 @@
 
 #include "index_manager.h"
 #include "define.h"
+#include "index_data.h"
 
 namespace tis {
 
@@ -23,7 +24,7 @@ IndexManager::~IndexManager() {
 
 int IndexManager::update(const char* index_conf_fname) {
     time_t last_time = _latest_modi_time;   
-    time_t curr_time = util::get_ftime(index_conf_fname);
+    time_t curr_time = get_ftime(index_conf_fname);
 
 
     if (last_time != curr_time) {
@@ -32,21 +33,21 @@ int IndexManager::update(const char* index_conf_fname) {
 
         struct timeval start;
         struct timeval end;
-        LOG(INFO) << "load index data from " << index_data_dir_name << endl;
+        LOG(INFO) << "load index data from " << index_data_dir_name;
 
         gettimeofday(&start, NULL);
         int new_version = (_latest_version + 1) % VERSION_NUM;
         
-        R_ASSERT(_index_data[new_version]->reload(index_data_fname) == 0, -1);
+        R_ASSERT(_index_data[new_version]->load(index_data_dir_name) == 0, -1);
 
-        gettimeofday($end, NULL);
+        gettimeofday(&end, NULL);
 
-        LOG(INFO) << "load index data over! cost[" << TIMEDIFF(start, end) << "] version[" << new_version << "]" << endl;
+        LOG(INFO) << "load index data over! cost[" << TIMEDIFF(start, end) << "] version[" << new_version << "]";
 
         _latest_modi_time = curr_time;
         _latest_version = new_version;
 
-        R_ASSERT(save_index_version_sign() == 0, -1);
+        //R_ASSERT(save_index_version_sign() == 0, -1);TODO
 
     }
 

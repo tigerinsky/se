@@ -23,13 +23,15 @@ private:
     int get_data_dir(const char* conf_fname, char* dir_fname) const;
     int save_index_version_sign();
 
+    time_t get_ftime(const char* fname);
+
 private:
     static const int VERSION_NUM = 2;
     IndexData* _index_data[VERSION_NUM];
     time_t     _latest_modi_time; 
     int        _latest_version; 
     static __thread IndexData* _version_ptr;
-}//clas IndexManager
+};//clas IndexManager
 
 }//namespace tis
 

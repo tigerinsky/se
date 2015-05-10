@@ -13,7 +13,7 @@ public:
 private:
     //TODO all kind of index data object
 
-}
+};
 
 }
 

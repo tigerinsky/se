@@ -5,3 +5,8 @@ output/
 *~
 *.swp
 *.swo
+*.bak
+*.pb.cc
+*.pb.h
+se/server/thrift/*.cpp
+se/server/thrift/*.h
