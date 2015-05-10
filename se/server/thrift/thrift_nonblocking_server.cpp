@@ -8,24 +8,60 @@
 
 namespace tis { namespace thrift {
 
-void ServerIf::search (SeResponse& response, const SeRequest& request) {
+
+static void _adapt_input(const SeRequest& request,
+                         se_input_t* input) {
     char buf[1024];
-    se_input_t input;
-    se_output_t output;
-    input.query = request.query;
-    input.pn = request.pn;
-    input.rn = request.rn;
+    input->query = request.query;
+    input->pn = request.pn;
+    input->rn = request.rn;
     snprintf(buf, 
              1024, 
-             "type(%d,%d)^catalog(%d,%d)",
-             request.type, request.type,
-             request.catalog, request.catalog);
-    input.numeric_filter = buf;
+             "^type(%d,%d)",
+             request.type, request.type);
+    input->numeric_filter = buf;
     for (auto ite = request.tag.begin(); ite != request.tag.end(); ++ite) {
-        input.tag_filter.append("^");
-        input.tag_filter.append(ite->c_str()); 
+        input->tag_filter.append("^");
+        input->tag_filter.append(ite->c_str()); 
     }
+    input->catalog = request.catalog;
+}
+
+static void _adapt_response(const se_output_t& output,
+                            SeResponse* response) {
+    response->err_no = output.err_no;
+    response->id =  output.id;
+    
+    class NumericAttr numeric_attr;
+    for (auto ite = output.search_condition.numeric_filter.begin(); ite != output.search_condition.numeric_filter.end(); ++ite) {
+        numeric_attr.name = ite->name;
+        numeric_attr.low = ite->low;
+        numeric_attr.high = ite->high;
+        response->search_condition.num_filter.push_back(numeric_attr);
+    }
+    class TagAttr tag_attr;
+    for (auto ite = output.search_condition.tag_filter.begin(); ite != output.search_condition.tag_filter.end(); ++ite) {
+        tag_attr.name = ite->tag; 
+        response->search_condition.tag_filter.push_back(tag_attr);
+    }
+    response->catalog.id = output.catalog.id;
+    if (response->catalog.id > 0) {
+        response->catalog.name = output.catalog.name; 
+        class TagGroup group;
+        for (auto ite = output.catalog.tag_group.begin(); ite != output.catalog.tag_group.end(); ++ite) {
+            group.name = ite->name; 
+            group.tag = ite->tag;
+            response->catalog.tag_group.push_back(group);
+        }
+    }
+}
+
+void ServerIf::search (SeResponse& response, const SeRequest& request) {
+    se_input_t input;
+    se_output_t output;
+    _adapt_input(request, &input);
     SeService::search(input, &output);   
+    _adapt_response(output, &response);
 }
 
 NonBlockingServer::~NonBlockingServer() {

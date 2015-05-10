@@ -9,6 +9,7 @@ namespace tis {
 
 DEFINE_int32(port, 9060, "se server port");
 DEFINE_int32(thread_num, 15, "thread pool server handler thread num");
+DEFINE_string(catalog_info_conf, "./conf/catalog_info.conf", "catalog info conf");
 
 }
 

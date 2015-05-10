@@ -1,11 +1,15 @@
 #ifndef __AS_H_
 #define __AS_H_
 
+#include <unordered_map>
 #include "struct.h" 
 
 namespace tis { namespace as {
 
 class AS {
+public:
+    static const int RET_OK = 0;
+
 public:
     AS();
     virtual ~AS();
@@ -15,6 +19,7 @@ public:
     void advance_search(const as_input_t& input, as_output_t* output);
 
 private:
+    std::unordered_map<int, catalog_info_t> _catalog_info_dict;
 
 };
 

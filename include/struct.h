@@ -40,14 +40,12 @@ typedef struct term_t {
 // --- as ----
 typedef struct numeric_filter_t {
     std::string name;
-    int id;
     int low;
     int high;
 } numeric_filter_t;
 
 typedef struct tag_filter_t {
     std::string tag;
-    int id;
 } tag_filter_t; 
 
 typedef struct search_condition_t {
@@ -73,11 +71,13 @@ typedef struct as_input_t {
     int rn; 
     std::string tag_filter;
     std::string numeric_filter;
+    //根据业务需求新加字段
+    int catalog;
 } as_input_t;
 
 typedef struct as_output_t {
-    int errno;
-    std::deque<int> id;
+    int err_no;
+    std::vector<int> id;
     search_condition_t search_condition; 
     catalog_info_t catalog;
 } as_output_t;
@@ -88,16 +88,14 @@ typedef struct as_output_t {
 namespace bs {
 typedef struct bs_input_t {
     std::string query; 
-    std::deque<std::string> token;
+    std::vector<std::string> token;
     search_condition_t search_condition;
 } bs_input_t;
 
 typedef struct bs_output_t {
-
+    std::vector<int> id;
 } bs_output_t;
 }
-
-
 // ---- bs end ----
 
 // ---- da ----
@@ -108,7 +106,7 @@ typedef struct da_input_t {
 
 typedef struct da_output_t {
     std::string query;
-    std::deque<std::string> token;
+    std::vector<std::string> token;
     int catalog;
 } da_output_t;
 }
