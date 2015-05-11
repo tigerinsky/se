@@ -49,7 +49,8 @@ namespace tis {
                 }
             }
             else { //二级分类
-                catalog_t ct = {catalog_str, catalog_id};
+                catalog_t ct = {catalog_id, catalog_str, parent_catalog_str};
+                id_cata[catalog_id] = ct;
                 std::unordered_map<std::string, catalog_list_t>::const_iterator it = cata_map_.find(parent_catalog_str);
                 if (it == cata_map_.end()) {
                     catalog_list_t clt;
@@ -98,5 +99,29 @@ namespace tis {
         }
 
         return -1;
+    }
+
+    int CatalogDataReader::get_catalog_name(int32_t id, std::string& name) {
+        std::unordered_map<int32_t, catalog_t>::const_iterator it = id_cata.find(id);
+        if (it == id_cata.end()) {
+            LOG(INFO) << "can not find name, id[" << id <<"]";
+            return 1;
+        }
+        name = (it->second).name;
+
+        return 0;
+
+    }
+
+    int CatalogDataReader::get_parent_catalog_name(int32_t id, std::string& name) {
+        std::unordered_map<int32_t, catalog_t>::const_iterator it = id_cata.find(id);
+        if (it == id_cata.end()) {
+            LOG(INFO) << "can not find parent name, id[" << id << "]";
+            return 1;
+        }
+
+        name = (it->second).parent_name;
+
+        return 0;
     }
 }

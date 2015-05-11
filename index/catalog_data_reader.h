@@ -9,8 +9,9 @@
 
 namespace tis {
 typedef struct catalog_t {
-    std::string name;
     int32_t id;
+    std::string name;
+    std::string parent_name;
 }catalog_t;
 
 typedef struct catalog_list_t {
@@ -38,11 +39,16 @@ class CatalogDataReader {
         int get_id(const std::string& name1,
                 const std::string& name2, int32_t* id);
 
+        int get_catalog_name(int32_t id, std::string& name);
+
+        int get_parent_catalog_name(int32_t id, std::string& name);
+
     private:
         int parse_line(const char* buf, int len);
 
     private:
         CATA_MAP cata_map_;
+        std::unordered_map<int32_t, catalog_t> id_cata;//second_id:catalog_t
 
         DISALLOW_COPY_AND_ASSIGN(CatalogDataReader);
 };
