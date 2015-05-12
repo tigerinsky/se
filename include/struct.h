@@ -93,6 +93,7 @@ typedef struct bs_input_t {
 } bs_input_t;
 
 typedef struct bs_output_t {
+    int err_no;
     std::vector<int> id;
 } bs_output_t;
 }

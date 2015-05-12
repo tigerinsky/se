@@ -172,7 +172,7 @@ int IndexData::load(const char* data_path) {
     _index_path = data_path;
 }
 
-const term_t* IndexData::locate_term(uint64_t sign) {
+const term_t* IndexData::locate_term(uint64_t sign) const {
     uint32_t low = 0;
     uint32_t high = _term_data->num - 1;
     uint32_t mid = (low + high) / 2;
@@ -193,15 +193,18 @@ const term_t* IndexData::locate_term(uint64_t sign) {
     return NULL;
 }
 
-const index_t* IndexData::load_index(term_t* term) {
+const index_t* IndexData::load_index(const term_t* term) const {
     return (index_t*)_index_reader->read(term->file_no, term->offset);
 }
 
-const hit_t* IndexData::load_hit(index_t* index) {
+const hit_t* IndexData::load_hit(const index_t* index) const {
     return (hit_t*)_hit_reader->read(index->hit_info.file_no, index->hit_info.off);
 }
 
-const Brief* IndexData::get_brief(int obj_id) {
+const Brief* IndexData::get_brief(uint32_t obj_id) const {
+    if (obj_id >= _brief_data->brief.size()) {
+        return NULL; 
+    }
     return _brief_data->brief[obj_id];
 }
 }

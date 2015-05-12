@@ -16,8 +16,8 @@ typedef struct brief_data_t {
     std::vector<Brief*> brief;
 
     ~brief_data_t() {
-        for (auto ite = brief.begin(); ite != brief.end(); ++ite) {
-            delete *ite; 
+        for (auto ite : brief) {
+            delete ite; 
         } 
     }
 } brief_data_t;
@@ -43,10 +43,10 @@ public:
 
     const char* get_index_path() const { return _index_path.c_str(); }
     int load(const char* data_path);
-    const term_t* locate_term(uint64_t sign);
-    const index_t* load_index(term_t* term);
-    const hit_t* load_hit(index_t* index);
-    const Brief* get_brief(int obj_id);
+    const term_t* locate_term(uint64_t sign) const;
+    const index_t* load_index(const term_t* term) const;
+    const hit_t* load_hit(const index_t* index) const;
+    const Brief* get_brief(uint32_t obj_id) const;
 
 private:
     int _load_index(const char* data_path);

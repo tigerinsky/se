@@ -10,6 +10,10 @@ class IndexManager;
 
 class BS {
 public:
+    static const int RET_OK = 0;
+    static const int RET_INIT_THREAD_DATA_ERR = 1;
+
+public:
     BS();
     virtual ~BS();
 
@@ -18,7 +22,7 @@ public:
     void basic_search(const bs_input_t& input, bs_output_t* output);
 
 private:
-    int _prepare();
+    int _prepare(const bs_input_t& input, bs_output_t* output);
     void _clean();
 
 private:
