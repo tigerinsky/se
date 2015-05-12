@@ -2,7 +2,7 @@
 #include "da.h"
 #include "../flag.h"
 #include "segment.h"
-#include "../../index/catalog_data_reader.h"
+#include "../../shared/catalog_data_reader.h"
 #include "glog/logging.h"
 //#include <stdio.h>
 

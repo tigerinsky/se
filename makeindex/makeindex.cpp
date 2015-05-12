@@ -6,6 +6,8 @@
 #include "flag.h"
 #include "define.h"
 #include "proto/brief.pb.h"
+#include "../shared/catalog_data_reader.h"
+#include "../shared/tag_data_reader.h"
 
 namespace tis {
 
@@ -17,6 +19,9 @@ FILE* g_brief_fp = NULL;
 char* g_field_buffer = NULL;
 int g_field_buffer_size = 0;
 std::string g_proto_buff;
+CatalogDataReader* g_catalog_reader = NULL;
+TagDataReader* g_tag_reader = NULL;
+
 
 static int init () {
     char path[512];
@@ -44,6 +49,25 @@ static int init () {
         return 5; 
     }
     g_field_buffer_size = DEFAULT_BUFFER_SIZE;
+
+    g_catalog_reader = new(std::nothrow) CatalogDataReader;
+    if (!g_catalog_reader) {
+        return 6;
+    }
+    int ret = g_catalog_reader->load(FLAGS_catalog_dict);
+    if (ret != 0) {
+        return 7;
+    }
+
+    g_tag_reader = new (std::nothrow) TagDataReader;
+    if (!g_tag_reader) {
+        return 8;
+    }
+    ret =  g_tag_reader->load(FLAGS_tag_dict);
+    if (ret != 0) {
+        return 9;
+    }
+
     return 0;
 }
 
@@ -128,13 +152,42 @@ static int handle_line(const char* line) {
     int catalog_id = atoi(g_field_buffer);
     brief.set_catalog_id(catalog_id); 
     //todo add catalog_str && parent_catalog_str
+    string catalog_str;
+    string parent_catalog_str;
+    ret = g_catalog_reader->get_catalog_name(catalog_id, catalog_str);
+    if (ret == 0) {
+        if (g_index_maker->add_field("catalog", catalog_str.c_str())) {
+            LOG(WARNING) << "makeindex: add catalog field error, catalog["
+                         << catalog_str << "]";
+            return 3;
+        }
+    }
+
+    ret = g_catalog_reader->get_catalog_name(catalog_id, parent_catalog_str);
+    if (ret == 0) {
+        if (g_index_maker->add_field("catalog", parent_catalog_str.c_str())) {
+            LOG(WARNING) << "makeindex: add catalog field error, parent catalog["
+                         << parent_catalog_str << "]";
+            return 3;
+        }
+    }
     // 4. tag_id 
     if (next_field(&p, '\t')) return 4;
     std::vector<std::string> list;
     split(g_field_buffer, ' ', list);
     for (auto ite = list.begin(); ite != list.end(); ++ite) {
-        brief.add_tag_id(atoi(ite->c_str())); 
+        int32_t tag_id = atoi(ite->c_str()); 
+        brief.add_tag_id(tag_id);
         //todo add tag str
+        string tag_name;
+        ret = g_tag_reader->get_name(tag_id, tag_name);
+        if (ret == 0) {
+            if (g_index_maker->add_field("tag", tag_name.c_str())) {
+                LOG(WARNING) << "makeindex: add tag field error, tag[" << tag_name << "]";
+                return 4;
+            }
+                   
+        }
     }
     // 5. zan_num
     if (next_field(&p, '\t')) return 5;

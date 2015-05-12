@@ -4,8 +4,7 @@
 
 using std::endl;
 namespace tis {
-    int TagDataReader::load() {
-        string file_name = path_ + "/" + file_;
+    int TagDataReader::load(string file_name) {
         FILE* fp = fopen(file_name.c_str(), "r");
         if (fp == NULL) {
             LOG(ERROR) << "open file " << file_name.c_str() << " file" << endl;
@@ -36,11 +35,9 @@ namespace tis {
         char tag_name[MAX_TAG_NAME_LEN];
         char tag_value[MAX_TAG_VALUE_LEN];
         int32_t id = 0;
-        if (3 == sscanf(buf, "%s\t%s\t%s\t%d", catalog, tag_name, tag_value,&id)) {
-            string key(catalog);
-            key.append(tag_name);
-            key.append(tag_value);
-            tag_map_[key] = id;
+        if (2 == sscanf(buf, "%s\t%d", tag_name, &id)) {
+            tag_map_[tag_name] = id;
+            id_tag[id] = tag_name;
             return 0;
         } else {
             return -1;
@@ -51,7 +48,7 @@ namespace tis {
             const string& tag_name, const string& tag_value,
             int32_t* id) {
         string key = catalog + tag_name + tag_value;
-        TAG_MAP::iterator iter = tag_map_.find(key);
+        auto iter = tag_map_.find(key);
         if (iter != tag_map_.end()) {
             *id = iter->second;
             return 0;
@@ -59,4 +56,24 @@ namespace tis {
             return -1;
         }
     }
-}
+
+    int TagDataReader::get_id(const string& tag_name, int32_t* id) {
+        auto iter = tag_map_.find(tag_name);
+        if (iter != tag_map_.end()) {
+            *id = iter->second;
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    int TagDataReader::get_name(int32_t id, string& tag_name) {
+        auto iter = id_tag.find(id);
+        if (iter != id_tag.end()) {
+            tag_name  = iter->second;
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+}//namespace

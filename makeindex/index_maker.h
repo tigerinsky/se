@@ -52,7 +52,6 @@ private:
     FILE* _term_fp;
 };
 
-
 }
 
 #endif
