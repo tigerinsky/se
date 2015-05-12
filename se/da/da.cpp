@@ -92,14 +92,10 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     }
 
     //3:get catalog id 
-    if (output->token.size() == 2) {
-        int id;
-        printf("in if: \n");
-        ret = _cata_reader->get_id(output->token[0], output->token[1], &id);
-        printf("ret:%d, id:%d\n", ret, id);
-        if (ret == 0) {
-            output->catalog = id;
-        }
+    int id;
+    ret = _cata_reader->get_id(output->token, &id, 1);
+    if (ret == 0) {
+        output->catalog = id;
     }
 }
 

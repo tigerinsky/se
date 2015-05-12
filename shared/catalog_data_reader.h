@@ -8,10 +8,17 @@
 #include "define.h"
 
 namespace tis {
+typedef struct meta {
+    int32_t start;
+    int32_t offset;
+} meta;
+
 typedef struct catalog_t {
     int32_t id;
     std::string name;
-    std::string parent_name;
+    int32_t parent_id;
+    struct catalog_t* parent;
+    meta children;
 }catalog_t;
 
 typedef struct catalog_list_t {
@@ -20,24 +27,16 @@ typedef struct catalog_list_t {
 
 class CatalogDataReader {
     public:
-        typedef std::unordered_map<std::string, catalog_list_t> CATA_MAP;
         CatalogDataReader() {
         }
         ~CatalogDataReader() {
         }
 
-        /*int init(const char* path, const char* file) {
-            path_.assign(path);
-            file_.assign(file);
-            return 0;
-        }*/
-
         //each line in file:
-        //catalog_id\tcatalog_name\tparent_catalog_id\tparent_catalog_name
+        //catalog_id\tcatalog_name\tparent_catalog_id
         int load(std::string file_name);
 
-        int get_id(const std::string& name1,
-                const std::string& name2, int32_t* id);
+        int get_id(const std::vector<std::string>& seg_list, int32_t* id, int level);
 
         int get_catalog_name(int32_t id, std::string& name);
 
@@ -45,10 +44,13 @@ class CatalogDataReader {
 
     private:
         int parse_line(const char* buf, int len);
+        int binary_search(const meta& children, const std::string& name);
+        int get_id_in_level(const meta& children, std::vector<std::string>& left, int32_t* id, int level);
 
     private:
-        CATA_MAP cata_map_;
-        std::unordered_map<int32_t, catalog_t> id_cata;//second_id:catalog_t
+        std::unordered_map<std::string, catalog_t*> level_one_map;
+        std::unordered_map<int32_t, catalog_t*> id_cata;//id:catalog_t
+        std::vector<catalog_t*> catalog_list;
 
         DISALLOW_COPY_AND_ASSIGN(CatalogDataReader);
 };
