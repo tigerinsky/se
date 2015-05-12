@@ -3,7 +3,10 @@
 
 #include "struct.h"
 
-namespace tis { namespace bs {
+namespace tis { 
+namespace bs {
+
+class IndexManager;
 
 class BS {
 public:
@@ -15,9 +18,15 @@ public:
     void basic_search(const bs_input_t& input, bs_output_t* output);
 
 private:
+    int _prepare();
+    void _clean();
 
+private:
+    IndexManager* _index_manager;
 };
 
-}}
+}
+
+}
 
 #endif
