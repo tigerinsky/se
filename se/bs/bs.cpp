@@ -11,6 +11,7 @@
 #include "ret.h"
 #include "sign.h"
 #include "proto/brief.pb.h"
+#include "shared/tag_data_reader.h"
 
 namespace tis { namespace bs {
 
@@ -47,17 +48,22 @@ typedef struct thread_data_t {
     term_info_t term[BS_MAX_TERM_NUM];
     int term_num;
     Heap<term_info_t*, CursorCmp> index_heap;
+    std::vector<int> tag_filt_id;
 } thread_data_t;
 __thread thread_data_t* gt_thread_data = NULL;
 
 BS::BS() {
     _index_manager = NULL;
+    _tag_data = NULL;
 }
 
 BS::~BS() {
+    if (_index_manager) delete _index_manager;
+    if (_tag_data) delete _tag_data;
 }
 
 int BS::init() {
+    TagDataReader* _tag_data;
     int ret = -1;
     _index_manager = new(std::nothrow) IndexManager;
     if (!_index_manager) {
@@ -66,6 +72,13 @@ int BS::init() {
     ret = _index_manager->init(FLAGS_index_conf.c_str());
     if (ret) {
         return ret::bs::ERR_INIT_INDEX_MANAGER; 
+    }
+    _tag_data = new(std::nothrow) TagDataReader;
+    if (!_tag_data) {
+        return ret::bs::ERR_NEW_TAG_READER; 
+    }
+    if (_tag_data->load(FLAGS_tag_conf)) {
+        return ret::bs::ERR_INIT_TAG_READER; 
     }
     return ret::OK;
 }
@@ -82,6 +95,14 @@ int BS::_prepare(const bs_input_t& input, bs_output_t* output) {
     gt_thread_data->input = &input;
     gt_thread_data->output = output;
     output->id.clear();
+    gt_thread_data->tag_filt_id.clear(); 
+    for (auto ite : input.search_condition.tag_filter) {
+        int tag_id = 0;
+        if (!_tag_data->get_id(ite.tag, &tag_id)) {
+            gt_thread_data->tag_filt_id.push_back(tag_id); 
+        } 
+    }
+    std::sort(gt_thread_data->tag_filt_id.begin(), gt_thread_data->tag_filt_id.end());
     return ret::OK;
 }
 
@@ -125,12 +146,49 @@ static int load_index() {
     return ret::OK;
 }
 
+static bool numeric_filter(const Brief* brief, const search_condition_t& condition) {
+    //先人工实现
+    for (auto ite : condition.numeric_filter) {
+        int value = 0;
+        if (strcmp(ite.name.c_str(), "type")) {
+            value = brief->type(); 
+        } else if (strcmp(ite.name.c_str(), "catalog")) {
+            value = brief->catalog_id(); 
+        } else {
+            continue; 
+        }
+        if (value < ite.low || value > ite.high) return true; 
+    }
+    return false;
+}
+
+static bool tag_filter(const Brief* brief, const search_condition_t& condition) {
+    for (int i = 0, j = 0; i < gt_thread_data->tag_filt_id.size() 
+            && j < brief->tag_id_size(); ++i) {
+        int filt_tag = gt_thread_data->tag_filt_id[i]; 
+        for (;j < brief->tag_id_size(); ++j) {
+            int brief_tag = brief->tag_id(j);
+            if (brief_tag < filt_tag) {
+                continue; 
+            } else if (brief_tag > filt_tag) {
+                return true; 
+            } else {
+                ++j;
+                break; 
+            }
+        }
+    }
+    return false;
+}
+
 static bool filt(uint32_t obj_id) {
     const Brief* brief = gt_thread_data->index_data->get_brief(obj_id);
     const search_condition_t& search_condition = gt_thread_data->input->search_condition;
     if (!brief) {
         return true;
     }
+    if (numeric_filter(brief, search_condition)) return true;
+    if (tag_filter(brief, search_condition)) return true;
     return false;
 }
 

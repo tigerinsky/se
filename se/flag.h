@@ -11,6 +11,7 @@ DECLARE_string(catalog_info_conf);
 DECLARE_string(segment_dict);
 DECLARE_string(catalog_dict);
 DECLARE_string(index_conf);
+DECLARE_string(tag_conf);
 
 }
 #endif

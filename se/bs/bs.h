@@ -4,6 +4,9 @@
 #include "struct.h"
 
 namespace tis { 
+
+class TagDataReader;
+
 namespace bs {
 
 class IndexManager;
@@ -27,6 +30,7 @@ private:
 
 private:
     IndexManager* _index_manager;
+    TagDataReader* _tag_data;
 };
 
 }
