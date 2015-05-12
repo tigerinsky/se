@@ -19,5 +19,5 @@ se_sources = GLOB("./se/server/thrift/*.thrift ./proto/*.proto ./se/as/*.cpp ./s
 makeindex_sources = GLOB('proto/*.proto ./makeindex/*.cpp ./shared/*.cpp')
 
 APP('makeindex', makeindex_sources)
-APP('se', se_sources)
+#APP('se', se_sources)
 

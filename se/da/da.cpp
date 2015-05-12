@@ -1,4 +1,6 @@
-#include<ctype.h>
+#include <ctype.h>
+#include <unordered_map>
+
 #include "da.h"
 #include "../flag.h"
 #include "segment.h"
@@ -80,8 +82,13 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     std::vector<tis::token_t> token;
     _segment->get_cat_tokens(token);
     std::vector<tis::token_t>::iterator ite; 
+    std::unordered_map<std::string, int16_t> token_map;  //为了去重
     for (ite = token.begin(); ite != token.end(); ite++) {
-        output->token.push_back(ite->str);
+        auto it = token_map.find(ite->str);
+        if (it == token_map.end()) {
+            output->token.push_back(ite->str);
+            token_map[ite->str] = 1;
+        }
     }
 
     //3:get catalog id 
