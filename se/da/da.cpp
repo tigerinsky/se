@@ -94,6 +94,7 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     //3:get catalog id 
     int id;
     ret = _cata_reader->get_id(output->token, &id, 1);
+    output->catalog = -1;
     if (ret == 0) {
         output->catalog = id;
     }

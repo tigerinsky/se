@@ -10,7 +10,7 @@ namespace tis {
             return (a->parent_id - b->parent_id > 0);
         }
         else {
-            return (a->name).compare(b->name) >= 0;
+            return (a->name).compare(b->name) <= 0;
         }
     }
 
@@ -61,7 +61,9 @@ namespace tis {
                 }
 
                 last_parent = now->parent;
+
             }
+
         }
 
 
@@ -104,6 +106,7 @@ namespace tis {
                 catalog_t *ct = new catalog_t;
                 ct->id = catalog_id;
                 ct->name = catalog;
+                ct->parent_id = parent_catalog_id;
                 auto id_it = id_cata.find(parent_catalog_id);
                 if (id_it == id_cata.end()) {//没找到父节点
                     catalog_t *parent_ct = new catalog_t;//新建父节点 
@@ -130,7 +133,7 @@ namespace tis {
 
     int CatalogDataReader::binary_search(const meta& children, const std::string& name) {
         int left = children.start - 1;
-        int right = children.offset;
+        int right = children.start + children.offset;
         int middle;
 
         while (left + 1 != right) {
@@ -144,7 +147,7 @@ namespace tis {
             }
         }
 
-        if (right >= children.offset || catalog_list[right]->name.compare(name) != 0)
+        if (right >= children.start + children.offset || catalog_list[right]->name.compare(name) != 0)
             return -1;
         return right;
     }
