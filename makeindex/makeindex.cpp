@@ -1,6 +1,7 @@
 #include "makeindex.h"
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "glog/logging.h"
 #include "index_maker.h"
 #include "flag.h"
@@ -134,6 +135,7 @@ static int write_brief(Brief& brief) {
 }
 
 static int handle_line(const char* line) {
+    LOG(INFO) << line;
     //id\ttype\tcatalog_id\ttag\tzan_num\tcomment_num\tdesc
     int ret =  -1;
     const char* p = line; 
@@ -174,20 +176,22 @@ static int handle_line(const char* line) {
     // 4. tag_id 
     if (next_field(&p, '\t')) return 4;
     std::vector<std::string> list;
+    std::vector<int32_t> tag_id;
     split(g_field_buffer, ' ', list);
-    for (auto ite = list.begin(); ite != list.end(); ++ite) {
-        int32_t tag_id = atoi(ite->c_str()); 
-        brief.add_tag_id(tag_id);
-        //todo add tag str
-        string tag_name;
-        ret = g_tag_reader->get_name(tag_id, tag_name);
-        if (ret == 0) {
-            if (g_index_maker->add_field("tag", tag_name.c_str())) {
-                LOG(WARNING) << "makeindex: add tag field error, tag[" << tag_name << "]";
-                return 4;
-            }
-                   
+    for (auto ite : list) {
+        if (g_index_maker->add_field("tag", ite.c_str())) {
+            LOG(WARNING) << "makeindex: add tag field error, tag[" << ite << "]";
+            return 4;
         }
+        int32_t id = 0; 
+        ret = g_tag_reader->get_id(ite, &id);
+        if (!ret) {
+            tag_id.push_back(id);
+        }
+    }
+    std::sort(tag_id.begin(), tag_id.end());
+    for (auto ite : tag_id) {
+        brief.add_tag_id(ite);
     }
     // 5. zan_num
     if (next_field(&p, '\t')) return 5;
