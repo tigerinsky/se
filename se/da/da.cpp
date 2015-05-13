@@ -39,10 +39,10 @@ int DA::init() {
 
     //load catalog dict
     _cata_reader = new CatalogDataReader();
-    ret = _cata_reader->load(FLAGS_catalog_dict);
+    ret = _cata_reader->load(FLAGS_catalog_conf);
     if (ret != 0) {
         LOG(WARNING) << "DA: load catalog dict error, ret["
-        << ret <<"] dict["<< FLAGS_catalog_dict.c_str() << "]";
+        << ret <<"] dict["<< FLAGS_catalog_conf.c_str() << "]";
         goto fail;
     }
 

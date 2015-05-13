@@ -104,7 +104,8 @@ int IndexManager::update() {
         index.data = new(std::nothrow) IndexData; 
         if (!index.data) return 2;
     }
-    if (index.data->load(index_path.c_str())) {
+    if (ret = index.data->load(index_path.c_str())) {
+        LOG(ERROR) << "index manager: index_data load error, ret["<<ret<<"]";
         return 3; 
     }
     index.ref = 0;

@@ -10,7 +10,7 @@ DEFINE_int32(port, 9060, "se server port");
 DEFINE_int32(thread_num, 15, "thread pool server handler thread num");
 DEFINE_string(catalog_info_conf, "./conf/catalog_info.conf", "catalog info conf");
 DEFINE_string(segment_dict, "./conf/seg/utf8", "segment dict");
-DEFINE_string(catalog_dict, "./conf/catalog.dict", "catalog dict");
+DEFINE_string(catalog_conf, "./conf/catalog.conf", "catalog dict");
 DEFINE_string(index_conf, "./conf/index.conf", "index path conf");
 DEFINE_string(tag_conf, "./conf/tag.conf", "tag conf path");
 

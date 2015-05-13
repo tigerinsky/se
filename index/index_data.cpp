@@ -122,6 +122,11 @@ int IndexData::_load_brief(const char* data_path) {
         LOG(ERROR) << "index data: open brief file error, path["<<buff<<"]";
         goto fail;
     }
+    _brief_data = new(std::nothrow) brief_data_t;
+    if (!_brief_data) {
+        LOG(ERROR) << "index data: new brief data error";
+        goto fail; 
+    }
     int size; 
     while (true) {
         ret = fread(&size, sizeof(size), 1, fp);
@@ -170,6 +175,7 @@ int IndexData::load(const char* data_path) {
     if (_load_term(data_path)) return 3;  
     if (_load_brief(data_path)) return 4;
     _index_path = data_path;
+    return 0;
 }
 
 const term_t* IndexData::locate_term(uint64_t sign) const {
