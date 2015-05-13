@@ -135,6 +135,7 @@ static int write_brief(Brief& brief) {
 }
 
 static int handle_line(const char* line) {
+    LOG(INFO) << line;
     //id\ttype\tcatalog_id\ttag\tzan_num\tcomment_num\tdesc
     int ret =  -1;
     const char* p = line; 

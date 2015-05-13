@@ -187,6 +187,7 @@ term_info_t* IndexMaker::__get_term_info(uint64_t sign) {
         }
         term_info->sign = sign;
         term_info->num = 0;
+        term_info->index = NULL;
         _term_map[sign] = term_info;
     } else {
         term_info = static_cast<term_info_t*>(term_ite->second); 
@@ -262,13 +263,13 @@ static int index_compare(const void* a, const void* b) {
     const index_info_t* ia = (const index_info_t*)a;
     const index_info_t* ib = (const index_info_t*)b;
     if (ia->sign != ib->sign) {
-        return ia->sign - ib->sign; 
+        return ia->sign < ib->sign ? -1 : 1; 
     } else if (ia->field != ib->field) {
-        return ia->field - ib->field; 
+        return ia->field < ib->field ? -1 : 1; 
     } else if (ia->no != ib->no) {
-        return ia->no - ib->no; 
+        return ia->no < ib->no ? -1 : 1; 
     } else if (ia->offset != ib->offset) {
-        return ia->offset - ib->offset; 
+        return ia->offset < ib->offset ? -1 : 1; 
     } else {
         return 0; 
     }
@@ -291,7 +292,7 @@ int IndexMaker::finish_obj() {
     uint64_t last_sign = 0; 
     field_t last_field = 0;
     index_node_t* index_node = NULL;
-    for (int i = 1; i < _obj_index_num; ++i) {
+    for (int i = 0; i < _obj_index_num; ++i) {
         index_info_t* index_info = _obj_index_buffer + i; 
         if (!index_node) {
             index_node = new(std::nothrow) index_node_t; 
@@ -327,8 +328,7 @@ int IndexMaker::finish_obj() {
 
         if (index_info->field != last_field) {
             cur_fno = 0; 
-        }
-        if (index_info->no != last_no) {
+        } else if (index_info->no != last_no) {
             ++cur_fno; 
         }
         hit.field = index_info->field;

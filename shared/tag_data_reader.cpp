@@ -17,6 +17,7 @@ namespace tis {
         while (!feof(fp)) {
             line_num++;
             if (fgets(buf, MAX_LINE_LEN, fp) == NULL) { continue; }
+            len = strlen(buf);
             while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n')) {
                 buf[len-1] ='\0';
                 len--;
