@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <unordered_map>
+#include <sstream>
 
 #include "da.h"
 #include "../flag.h"
@@ -59,6 +60,15 @@ static int prepare() {
     return ret::OK;
 }
 
+static void split(const std::string &s, char delim, std::vector<std::string>& result) {
+    std::stringstream ss(s);
+    std::string item;
+
+    while (std::getline(ss, item, delim)) {
+        result.push_back(item);
+    }
+}
+
 void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     int ret = -1;
     if (ret::OK != (ret = prepare())) {
@@ -70,8 +80,20 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     std::string query = input.query;
     normalize_query(query);
     output->query = query;
+    
+    //2:split query
+    std::vector<std::string> result;
+    split(query, ' ', result);
 
-    //2: word seg
+    //3:get catalog id 
+    int id;
+    int catalog_ret = _cata_reader->get_id(result, &id, 1);
+    output->catalog = -1;
+    if (catalog_ret == 0) {
+        output->catalog = id;
+    }
+
+    //4: word seg
     Segment* segment = gt_thread_data->segment;
     ret = segment->segment(query.c_str(), strlen(query.c_str()));
     if (ret) {
@@ -91,12 +113,12 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
         }
     }
 
-    //3:get catalog id 
-    int id;
-    ret = _cata_reader->get_id(output->token, &id, 1);
-    output->catalog = -1;
-    if (ret == 0) {
-        output->catalog = id;
+    //5: if catalog_ret != 0 切词后再找一次
+    if (catalog_ret != 0) {
+        catalog_ret = _cata_reader->get_id(result, &id, 1);
+        if (catalog_ret == 0) {
+            output->catalog = id;
+        }
     }
     output->err_no = ret::OK;
 }
