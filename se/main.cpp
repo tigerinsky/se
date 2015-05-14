@@ -4,6 +4,11 @@
 #include "service/se_service.h"
 #include "flag.h"
 
+#ifdef _PROFILE
+#include <google/profiler.h>
+#endif
+
+
 namespace tis {
 
 DEFINE_int32(port, 9060, "se server port");
@@ -33,6 +38,9 @@ int main(int argc, char **argv) {
     signal(SIGQUIT, handle_signal);
     signal(SIGPIPE, SIG_IGN);
 
+#ifdef _PROFILE
+    ProfilerStart("se.prof");
+#endif
     g_server = new(std::nothrow) tis::thrift::NonBlockingServer;
     if (!g_server) {
         LOG(ERROR) << "new service, server error"; 
@@ -49,5 +57,8 @@ int main(int argc, char **argv) {
         LOG(ERROR) << "run se server error, ret["<< ret <<"]";
         return 3;
     }
+#ifdef _PROFILE
+    ProfilerStop(); 
+#endif
     return 0;
 }

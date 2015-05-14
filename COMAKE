@@ -6,6 +6,7 @@ THRIFT('../thrift/bin/thrift')
 
 CXX('g++')
 CXXFLAGS('-std=gnu++11 -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -g -pipe -W -Wall -fPIC -fno-omit-frame-pointer')
+#LDFLAGS('-lprofiler -lunwind -lcrypto -levent -ldl -lpthread -lm -lrt')
 LDFLAGS('-lcrypto -levent -ldl -lpthread -lm -lrt')
 
 DEP('gflags', '1.0.0')

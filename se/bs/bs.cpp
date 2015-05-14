@@ -35,7 +35,7 @@ typedef struct term_info_t {
 class CursorCmp {
 public:
 bool operator() (term_info_t*& a, term_info_t*& b) const {
-    return a->index_cursor.index->obj_id > b->index_cursor.index->obj_id;
+    return a->index_cursor.index->obj_id < b->index_cursor.index->obj_id;
 }
 };
 
@@ -63,7 +63,6 @@ BS::~BS() {
 }
 
 int BS::init() {
-    TagDataReader* _tag_data;
     int ret = -1;
     _index_manager = new(std::nothrow) IndexManager;
     if (!_index_manager) {
@@ -125,7 +124,7 @@ static int load_index() {
         sign = sign64_str(term_txt.c_str(), term_txt.size());
         term = index_data->locate_term(sign);
         if (!term) {
-           // LOG(WARNING) << "locate term error, sign:"<<sign;
+            //LOG(WARNING) << "locate term error, sign:"<<sign;
             continue; 
         }
         term_info_t& term_info = gt_thread_data->term[term_num];
@@ -136,7 +135,7 @@ static int load_index() {
         ++term_num;
     }
     if (0 == term_num) {
-        return ret::bs::ERR_EMPTY_TOKEN; 
+        return ret::bs::EMPTY_TOKEN; 
     }
     gt_thread_data->term_num = term_num;
     if (i < input->token.size()) {
@@ -188,8 +187,14 @@ static bool filt(uint32_t obj_id) {
     if (!brief) {
         return true;
     }
-    if (numeric_filter(brief, search_condition)) return true;
-    if (tag_filter(brief, search_condition)) return true;
+    if (numeric_filter(brief, search_condition)) { 
+        //LOG(INFO) << "filt by numeric filter: " << obj_id;
+        return true; 
+    }
+    if (tag_filter(brief, search_condition)) {
+        //LOG(INFO) << "filt by tag filter: " << obj_id;
+        return true;
+    }
     return false;
 }
 
@@ -225,7 +230,9 @@ bool compare_basic_weight (const obj_t& a, const obj_t& b) {
 
 static int _recall() {
     int ret = -1;
-    if (ret::OK != (ret = load_index())) return ret;
+    ret = load_index();
+    if (ret::bs::EMPTY_TOKEN == ret) return ret::OK;
+    if (ret::OK != ret) return ret;
     Heap<term_info_t*, CursorCmp>& heap = gt_thread_data->index_heap;
     for (int i = 0; i < gt_thread_data->term_num; ++i) {
         heap.push(&(gt_thread_data->term[i])); 

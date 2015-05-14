@@ -38,6 +38,7 @@ int AS::init() {
         if (fields.size() < 3) {
             continue; 
         }
+        catalog_info.tag_group.clear();
         catalog_info.id = atoi(fields[0].c_str());
         catalog_info.name = fields[1];
         for (int i = 2; i < fields.size(); ++i) {
@@ -145,8 +146,8 @@ void AS::advance_search(const as_input_t& input, as_output_t* output) {
     }
     if (catalog > 0) {
         _add_numeric_filter("catalog", 
-                            input.catalog, 
-                            input.catalog, 
+                            catalog, 
+                            catalog, 
                             &(bs_input.search_condition)); 
     }
     (void)gettimeofday(&begin, NULL);
@@ -159,7 +160,7 @@ void AS::advance_search(const as_input_t& input, as_output_t* output) {
     }
     output->err_no = ret::OK;
     for (int i = input.pn * input.rn; 
-            i < bs_output.id.size() && (input.pn + 1) * input.rn; ++i) {
+            i < bs_output.id.size() && i < (input.pn + 1) * input.rn; ++i) {
         output->id.push_back(bs_output.id[i]);
     }
     output->total_num = bs_output.id.size();

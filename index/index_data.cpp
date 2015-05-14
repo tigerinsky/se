@@ -86,7 +86,7 @@ int IndexData::_load_term(const char* data_path) {
         LOG(ERROR) << "index data: fstat error, errno["<<errno<<"]"; 
         goto fail;
     }
-    if (st.st_size % sizeof(*_term_data)) {
+    if (st.st_size % sizeof(*(_term_data->term))) {
         LOG(ERROR) << "index data: term file size error"; 
         goto fail;
     }
@@ -183,7 +183,7 @@ const term_t* IndexData::locate_term(uint64_t sign) const {
     uint32_t high = _term_data->num - 1;
     uint32_t mid = (low + high) / 2;
     term_t* term = _term_data->term;
-    while (low < high) {
+    while (low <= high) {
         mid = (low + high) / 2; 
         if (term[mid].sign > sign) {
             if (0 == mid) {

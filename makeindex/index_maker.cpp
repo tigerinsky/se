@@ -82,7 +82,7 @@ static int load_field_conf(const char* dir,
             continue;
         }
         LOG(INFO) << "IndexMaker: add field, name["
-            << buf << "] id[" << fid << "]";
+            << buf << "] id[" << (int)fid << "]";
         map[buf] = fid;
     }
     (void) fclose(fp);
@@ -245,8 +245,8 @@ int IndexMaker::add_field(const char* field, const char* value) {
     // 3. add index 
     _segment->get_all_unique_tokens(tokens);
     //std::vector<token_t>::iterator ite;
-    for (auto ite = tokens.begin(); ite != tokens.end(); ++ite) {
-        uint64_t sign = sign64_str(ite->str, ite->len); 
+    for (auto ite : tokens) {
+        uint64_t sign = sign64_str(ite.str, ite.len); 
         index_info_t* index_info = __add_index_info();
         if (!index_info) {
             return 3; 
@@ -254,7 +254,7 @@ int IndexMaker::add_field(const char* field, const char* value) {
         index_info->sign = sign; 
         index_info->field = field_id;
         index_info->no = _field_num;
-        index_info->offset = ite->offset;
+        index_info->offset = ite.offset;
     }
     ++_field_num;
     return 0;
