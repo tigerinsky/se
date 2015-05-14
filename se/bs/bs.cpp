@@ -125,6 +125,7 @@ static int load_index() {
         sign = sign64_str(term_txt.c_str(), term_txt.size());
         term = index_data->locate_term(sign);
         if (!term) {
+           // LOG(WARNING) << "locate term error, sign:"<<sign;
             continue; 
         }
         term_info_t& term_info = gt_thread_data->term[term_num];
@@ -150,9 +151,9 @@ static bool numeric_filter(const Brief* brief, const search_condition_t& conditi
     //先人工实现
     for (auto ite : condition.numeric_filter) {
         int value = 0;
-        if (strcmp(ite.name.c_str(), "type")) {
+        if (0 == strcmp(ite.name.c_str(), "type")) {
             value = brief->type(); 
-        } else if (strcmp(ite.name.c_str(), "catalog")) {
+        } else if (0 == strcmp(ite.name.c_str(), "catalog")) {
             value = brief->catalog_id(); 
         } else {
             continue; 
@@ -194,18 +195,18 @@ static bool filt(uint32_t obj_id) {
 
 static void add_obj(uint32_t obj_id, const hit_info_t& hit_info) {
     const Brief* brief = gt_thread_data->index_data->get_brief(obj_id); 
-    obj_t obj; 
-    int obj_idx = 0;
+    obj_t* obj = NULL; 
     int obj_num = gt_thread_data->obj.size();
     assert(brief);
     if (obj_num > 0 && obj_id == gt_thread_data->obj[obj_num - 1].obj_id) {
-        obj = gt_thread_data->obj[obj_num - 1];
-        obj_idx = obj_num - 1;
+        obj = &(gt_thread_data->obj[obj_num - 1]);
     } else {
-        obj.id = brief->id();
-        obj.obj_id = obj_id;
-        obj.basic_weight = 0.0;
-        obj_idx = obj_num;
+        obj_t o;
+        o.id = brief->id();
+        o.obj_id = obj_id;
+        o.basic_weight = 0.0;
+        gt_thread_data->obj.push_back(o);
+        obj = &(gt_thread_data->obj[obj_num]);
     }
     int hit_field_num = 0;
     field_t fflag = hit_info.field;
@@ -215,8 +216,7 @@ static void add_obj(uint32_t obj_id, const hit_info_t& hit_info) {
     }
     double hit_score = (hit_field_num * hit_info.num * 0.1);
     hit_score = hit_score > 0.5 ? 0.5 : hit_score;
-    obj.basic_weight += (1 + hit_score);
-    gt_thread_data->obj[obj_idx] = obj; 
+    obj->basic_weight += (1 + hit_score);
 }
 
 bool compare_basic_weight (const obj_t& a, const obj_t& b) {
@@ -268,12 +268,13 @@ static void _copy_result() {
 
 void BS::basic_search(const bs_input_t& input, bs_output_t* output) {
 #define TEST(ret) do { \
-    if (ret) {output->err_no = ret; return;} \
+    if (ret) {output->err_no = ret; goto end;} \
 } while(0);
     TEST(_prepare(input, output));
     TEST(_recall());
     TEST(_sort());
     _copy_result();
+end:
     _clean();
 }
 

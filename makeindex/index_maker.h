@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <unordered_map>
+#include <vector>
 
 namespace tis {
 
@@ -39,6 +40,7 @@ private:
     //global
     uint32_t _obj_num;
     std::unordered_map<uint64_t, term_info_t*> _term_map;
+    std::vector<term_info_t*> _term_arr;
 
     //obj
     index_info_t* _obj_index_buffer;

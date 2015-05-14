@@ -8,9 +8,6 @@ namespace tis { namespace as {
 
 class AS {
 public:
-    static const int RET_OK = 0;
-
-public:
     AS();
     virtual ~AS();
 

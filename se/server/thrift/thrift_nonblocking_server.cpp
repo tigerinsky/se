@@ -29,21 +29,22 @@ static void _adapt_input(const SeRequest& request,
 
 static void _adapt_response(const se_output_t& output,
                             SeResponse* response) {
-    response->err_no = output.err_no;
-    response->id =  output.id;
+    response->__set_err_no(output.err_no);
+    response->__set_id(output.id);
     
     class NumericAttr numeric_attr;
-    for (auto ite = output.search_condition.numeric_filter.begin(); ite != output.search_condition.numeric_filter.end(); ++ite) {
-        numeric_attr.name = ite->name;
-        numeric_attr.low = ite->low;
-        numeric_attr.high = ite->high;
+    for (auto ite : output.search_condition.numeric_filter) {
+        numeric_attr.name = ite.name;
+        numeric_attr.low = ite.low;
+        numeric_attr.high = ite.high;
         response->search_condition.num_filter.push_back(numeric_attr);
     }
     class TagAttr tag_attr;
-    for (auto ite = output.search_condition.tag_filter.begin(); ite != output.search_condition.tag_filter.end(); ++ite) {
-        tag_attr.name = ite->tag; 
+    for (auto ite : output.search_condition.tag_filter) {
+        tag_attr.name = ite.tag; 
         response->search_condition.tag_filter.push_back(tag_attr);
     }
+
     response->catalog.id = output.catalog.id;
     if (response->catalog.id > 0) {
         response->catalog.name = output.catalog.name; 

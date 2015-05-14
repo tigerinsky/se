@@ -6,16 +6,18 @@
 #include "segment.h"
 #include "../../shared/catalog_data_reader.h"
 #include "glog/logging.h"
-//#include <stdio.h>
+#include "ret.h"
 
 namespace tis { namespace da {
 
-DA::DA() {
-    
-}
+typedef struct thread_data_t {
+    Segment* segment;
+} thread_data_t;
+
+__thread thread_data_t* gt_thread_data = NULL;
 
 DA::~DA() {
-    
+    if (_cata_reader) {delete _cata_reader;}    
 }
 int DA::init() {
     int ret = -1;
@@ -24,18 +26,7 @@ int DA::init() {
     if (ret) {
         Segment::destroy();
         LOG(WARNING) << "DA: init segment dict error, ret["<<ret<<"]"; 
-        goto fail;
-    }
-
-    _segment = Segment::create(2048);
-    if (!_segment) {
-        LOG(WARNING) << "DA: new segment error";
-        goto fail;
-    }
-    ret = _segment->init(FLAGS_segment_dict.c_str());
-    if (ret) {
-        LOG(WARNING) << "DA: init segment error, ret["
-        << ret <<"] dict["<< FLAGS_segment_dict.c_str() << "]";
+        ret = ret::da::ERR_INIT_SEGMENT;
         goto fail;
     }
 
@@ -45,42 +36,51 @@ int DA::init() {
     if (ret != 0) {
         LOG(WARNING) << "DA: load catalog dict error, ret["
         << ret <<"] dict["<< FLAGS_catalog_conf.c_str() << "]";
+        ret = ret::da::ERR_INIT_CATALOG_DATA;
         goto fail;
     }
 
     return 0;
 fail:
-    if (_segment) {
-        delete _segment;
-        _segment = NULL;
-    }
-
     if (_cata_reader) {
         delete _cata_reader;
         _cata_reader = NULL;
     }
-
     return ret;
 }
 
-void DA::query_analysis(const da_input_t& input, da_output_t* output) {
-    // 1. normalize query    
-    // 2. word segment
-    // 3. catalog 解析
+static int prepare() {
+    if (!gt_thread_data) {
+        gt_thread_data = new(std::nothrow) thread_data_t; 
+        if (!gt_thread_data) return ret::da::ERR_INIT_THREAD_DATA;  
+        gt_thread_data->segment = Segment::create(1024);
+        if (!gt_thread_data->segment) return ret::da::ERR_INIT_SEGMENT_LOCAL;
+    }
+    return ret::OK;
+}
 
-    std::string query = input.query;
+void DA::query_analysis(const da_input_t& input, da_output_t* output) {
+    int ret = -1;
+    if (ret::OK != (ret = prepare())) {
+        output->err_no = ret; 
+        return;
+    }
+
     //1:normalize query
+    std::string query = input.query;
     normalize_query(query);
     output->query = query;
 
     //2: word seg
-    int ret = _segment->segment(query.c_str(), strlen(query.c_str()));
+    Segment* segment = gt_thread_data->segment;
+    ret = segment->segment(query.c_str(), strlen(query.c_str()));
     if (ret) {
         LOG(ERROR) << "DA:segment error, query[" << query << "] ret[" << ret << "]";
+        output->err_no = ret::da::ERR_SEGMENT;
         return;
     }
     std::vector<tis::token_t> token;
-    _segment->get_cat_tokens(token);
+    segment->get_cat_tokens(token);
     std::vector<tis::token_t>::iterator ite; 
     std::unordered_map<std::string, int16_t> token_map;  //为了去重
     for (ite = token.begin(); ite != token.end(); ite++) {
@@ -98,6 +98,7 @@ void DA::query_analysis(const da_input_t& input, da_output_t* output) {
     if (ret == 0) {
         output->catalog = id;
     }
+    output->err_no = ret::OK;
 }
 
 /**将空白字符统一替换成空格，且去除多余空格

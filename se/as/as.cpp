@@ -1,8 +1,11 @@
 #include "as.h"
+#include <sys/time.h>
 #include "glog/logging.h"
 #include "string_helper.h"
 #include "../service/se_service.h"
 #include "../flag.h"
+#include "ret.h"
+#include "define.h"
 
 namespace tis { namespace as {
 
@@ -113,17 +116,26 @@ void _add_numeric_filter(const char* name,
 }
 
 void AS::advance_search(const as_input_t& input, as_output_t* output) {
+    struct timeval begin; 
+    struct timeval end;
     da::da_input_t da_input;
     da::da_output_t da_result;
     da_input.query = input.query;
+    (void)gettimeofday(&begin, NULL);
     SeService::call_da_service(da_input, &da_result); 
+    (void)gettimeofday(&end, NULL);
+    output->da_cost = TIMEDIFF(begin, end);
+    if (ret::OK != da_result.err_no) {
+        output->err_no = da_result.err_no;
+        return;
+    }
 
     bs::bs_input_t bs_input;
     bs::bs_output_t bs_output;
     bs_input.query = da_result.query;
     bs_input.token = da_result.token;
     _fill_tag_filter(input.tag_filter.c_str(), &(bs_input.search_condition));
-    _fill_numeric_filter(input.tag_filter.c_str(), &(bs_input.search_condition));
+    _fill_numeric_filter(input.numeric_filter.c_str(), &(bs_input.search_condition));
     // 业务逻辑
     int catalog = -1;
     if (input.catalog > 0) {
@@ -137,10 +149,20 @@ void AS::advance_search(const as_input_t& input, as_output_t* output) {
                             input.catalog, 
                             &(bs_input.search_condition)); 
     }
+    (void)gettimeofday(&begin, NULL);
     SeService::call_bs_service(bs_input, &bs_output); 
-
-    output->err_no = RET_OK;
-    output->id = bs_output.id;
+    (void)gettimeofday(&end, NULL);
+    output->bs_cost = TIMEDIFF(begin, end);
+    if (bs_output.err_no != ret::OK) {
+        output->err_no = bs_output.err_no; 
+        return;
+    }
+    output->err_no = ret::OK;
+    for (int i = input.pn * input.rn; 
+            i < bs_output.id.size() && (input.pn + 1) * input.rn; ++i) {
+        output->id.push_back(bs_output.id[i]);
+    }
+    output->total_num = bs_output.id.size();
     output->search_condition = bs_input.search_condition;
     output->catalog.id = catalog;
     if (catalog > 0 && _catalog_info_dict.find(catalog) != _catalog_info_dict.end()) {
@@ -148,7 +170,6 @@ void AS::advance_search(const as_input_t& input, as_output_t* output) {
     } else {
         output->catalog.id = -1; 
     }
-
 }
 
 }}

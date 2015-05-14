@@ -78,8 +78,11 @@ typedef struct as_input_t {
 typedef struct as_output_t {
     int err_no;
     std::vector<int> id;
+    int total_num;
     search_condition_t search_condition; 
     catalog_info_t catalog;
+    long bs_cost;
+    long da_cost;
 } as_output_t;
 }
 // --- as end ----
@@ -106,6 +109,7 @@ typedef struct da_input_t {
 } da_input_t;
 
 typedef struct da_output_t {
+    int err_no;
     std::string query;
     std::vector<std::string> token;
     int catalog;

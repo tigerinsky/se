@@ -13,7 +13,7 @@ class CatalogDataReader;
 namespace da {
 class DA {
 public:
-    DA();
+    DA() : _cata_reader(NULL) {}
     virtual ~DA();
 
 public:
@@ -24,8 +24,7 @@ private:
     void normalize_query(std::string &query);
 
 private:
-    Segment* _segment;
-    CatalogDataReader *_cata_reader;
+    CatalogDataReader* _cata_reader;
 
 };
 

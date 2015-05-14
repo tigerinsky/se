@@ -1,6 +1,8 @@
 #include "se_service.h"
 #include <assert.h> 
+#include <sys/time.h>
 #include "../flag.h"
+#include "define.h"
 #include "glog/logging.h"
 
 namespace tis {
@@ -63,7 +65,18 @@ int SeService::init() {
 }
 
 void SeService::search(const se_input_t& input, se_output_t* output) {
+    struct timeval begin; 
+    struct timeval end;
+    (void)gettimeofday(&begin, NULL);
     call_as_service(input, output);
+    (void)gettimeofday(&end, NULL);
+    LOG(INFO) << "SeService: wd["
+        << input.query <<"] cost[" << TIMEDIFF(begin, end) <<"] da_cost["
+        << output->da_cost <<"] bs_cost[" << output->bs_cost<<"] pn["
+        << input.pn <<"] rn["<<input.rn<<"] catalog["
+        << input.catalog <<"] tag_f[" << input.tag_filter<<"] num_f["
+        << input.numeric_filter <<"] ret[" << output->err_no <<"] dn["
+        << output->total_num<<"]";
 }
 
 }

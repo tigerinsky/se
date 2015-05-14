@@ -1,5 +1,5 @@
-
 #include "index_maker.h"
+#include <algorithm>
 #include "glog/logging.h"
 #include "sign.h"
 #include "segment.h"
@@ -189,6 +189,7 @@ term_info_t* IndexMaker::__get_term_info(uint64_t sign) {
         term_info->num = 0;
         term_info->index = NULL;
         _term_map[sign] = term_info;
+        _term_arr.push_back(term_info);
     } else {
         term_info = static_cast<term_info_t*>(term_ite->second); 
     }
@@ -372,11 +373,16 @@ int IndexMaker::finish_obj() {
     return 0;
 }
 
+bool TermCompare (term_info_t* a, term_info_t* b) {
+    return a->sign < b->sign;
+}
+
 int IndexMaker::flush() {
     int ret = -1;
     term_t term;
-    for (auto ite = _term_map.begin(); ite != _term_map.end(); ++ite) {
-        term_info_t* term_info = ite->second;
+    std::sort(_term_arr.begin(), _term_arr.end(), TermCompare);
+    for (auto ite : _term_arr) {
+        term_info_t* term_info = ite;
         index_node_t* node = term_info->index;
         int index_num = 0;
         int file_no = 0;
