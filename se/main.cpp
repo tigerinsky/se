@@ -18,6 +18,7 @@ DEFINE_string(segment_dict, "./conf/seg/utf8", "segment dict");
 DEFINE_string(catalog_conf, "./conf/catalog.conf", "catalog dict");
 DEFINE_string(index_conf, "./conf/index.conf", "index path conf");
 DEFINE_string(tag_conf, "./conf/tag.conf", "tag conf path");
+DEFINE_string(version_file, "./var/version", "version file path");
 
 }
 

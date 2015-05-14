@@ -23,7 +23,6 @@ if [ $? -ne 0 ]
 then
     date
     echo 'dump date error'
-    #send_warning_message ${TRAGEDY_LIST_FILE} 't10: dump data error'
     exit 1
 fi
 
@@ -40,6 +39,5 @@ if [ $? -ne 0 ]
 then
     date
     echo 'merge date error'
-    #send_warning_message ${TRAGEDY_LIST_FIEL} 't10: merge data error'
     exit 1
 fi

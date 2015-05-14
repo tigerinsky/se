@@ -121,7 +121,7 @@ int IndexManager::update() {
     index.ref = 0;
     index.timestamp = curr_time;
     _latest_version = new_version;
-    update_version_file(_version_conf.c_str(), curr_time);
+    update_version_file(_version_file.c_str(), curr_time);
     gettimeofday(&end, NULL);
     LOG(INFO) << "index manager: load index over! cost[" << TIMEDIFF(start, end) << "] version[" << new_version << "]";
     return 0;

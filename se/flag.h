@@ -12,6 +12,7 @@ DECLARE_string(segment_dict);
 DECLARE_string(catalog_conf);
 DECLARE_string(index_conf);
 DECLARE_string(tag_conf);
+DECLARE_string(version_file);
 
 }
 #endif

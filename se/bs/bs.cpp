@@ -68,6 +68,7 @@ int BS::init() {
     if (!_index_manager) {
         return ret::bs::ERR_NEW_INDEX_MANAGER; 
     }
+    _index_manager->set_version_file(FLAGS_version_file.c_str());
     ret = _index_manager->init(FLAGS_index_conf.c_str());
     if (ret) {
         return ret::bs::ERR_INIT_INDEX_MANAGER; 
