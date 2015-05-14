@@ -2,13 +2,13 @@
 . ./conf/conf.sh
 
 function check_size() {
-    #local file=$1
-    #local check_size=$2 #单位k
-    #file_size=`ls -s ${file} | cut -d ' ' -f 1`
-    #if [ ${file_size} -lt ${check_size} ]
-    #then
-    #    return 1
-    #fi
+    local file=$1
+    local check_size=$2 #单位k
+    file_size=`ls -s ${file} | cut -d ' ' -f 1`
+    if [ ${file_size} -lt ${check_size} ]
+    then
+        return 1
+    fi
     return 0
 }
 
@@ -32,6 +32,6 @@ function dump_data() {
     fi
 }
 
-dump_data ${SQL_DIR}/get_all_tweet.sql ${TWEET} 20000 || exit 1
-dump_data ${SQL_DIR}/get_all_zan.sql ${ZAN} 30000 || exit 1
-dump_data ${SQL_DIR}/get_all_comment.sql ${COMMENT} 30000 || exit 1
+dump_data ${SQL_DIR}/get_all_tweet.sql ${TWEET} || exit 1
+dump_data ${SQL_DIR}/get_all_zan.sql ${ZAN} || exit 1
+dump_data ${SQL_DIR}/get_all_comment.sql ${COMMENT} || exit 1
