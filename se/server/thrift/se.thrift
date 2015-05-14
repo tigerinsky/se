@@ -30,9 +30,10 @@ struct Catalog {
 
 struct SeResponse {
     1: required i32 err_no,
-    2: required list<i32> id,
-    3: required SearchCondition search_condition,
-    4: required Catalog catalog,
+    2: required i32 total_num,
+    3: required list<i32> id,
+    4: required SearchCondition search_condition,
+    5: required Catalog catalog,
 }
 
 struct SeRequest {

@@ -135,7 +135,6 @@ static int write_brief(Brief& brief) {
 }
 
 static int handle_line(const char* line) {
-    LOG(INFO) << line;
     //id\ttype\tcatalog_id\ttag\tzan_num\tcomment_num\tdesc
     int ret =  -1;
     const char* p = line; 
@@ -165,7 +164,7 @@ static int handle_line(const char* line) {
         }
     }
 
-    ret = g_catalog_reader->get_catalog_name(catalog_id, parent_catalog_str);
+    ret = g_catalog_reader->get_parent_catalog_name(catalog_id, parent_catalog_str);
     if (ret == 0) {
         if (g_index_maker->add_field("catalog", parent_catalog_str.c_str())) {
             LOG(WARNING) << "makeindex: add catalog field error, parent catalog["

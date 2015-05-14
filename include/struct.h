@@ -62,6 +62,8 @@ typedef struct catalog_info_t {
     int id;
     std::string name;
     std::vector<tag_group_t> tag_group;
+
+    catalog_info_t () { id = -1; }
 } catalog_info_t;
 
 namespace as {

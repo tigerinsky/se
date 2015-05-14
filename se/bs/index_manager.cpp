@@ -8,6 +8,7 @@
 #include "string_helper.h"
 #include "define.h"
 #include "index/index_data.h"
+#include "ret.h"
 
 namespace tis {
 namespace bs {
@@ -73,6 +74,17 @@ int IndexManager::init(const char* index_conf, bool enable_switch) {
     return 0;
 }
 
+static void update_version_file (const char* path, time_t timestamp) {
+    if (!path || '\0' == path[0]) return;
+    FILE* fp = fopen(path, "w");
+    if (!fp) {
+        LOG(WARNING) << "index manager: open version file error, path["<< path <<"]";
+        return; 
+    }
+    (void)fprintf(fp, "%ld", timestamp);
+    (void)fclose(fp);
+}
+
 int IndexManager::update() {
     int ret = -1;
     const char* index_conf = _index_conf.c_str();
@@ -82,17 +94,15 @@ int IndexManager::update() {
     uint32_t new_version = (_latest_version + 1) % VERSION_NUM;
 
     if (last_time >= curr_time) {
-        return 0; 
+        return ret::OK; 
     }
     if (_index[new_version].ref) {
-        LOG(INFO) << "index manager: new version index is still using, give up, new_version[" << new_version <<"] ref["<< _index[new_version].ref << "]"; 
-        return 0; 
+        LOG(INFO) << "index manager: new version index is still using, give up, new_version[" 
+            << new_version <<"] ref["<< _index[new_version].ref << "]"; 
+        return ret::OK; 
     }
     std::string index_path;
-    ret = get_index_path(index_conf, &index_path);
-    if (ret) {
-        return 1; 
-    }
+    if (get_index_path(index_conf, &index_path)) return ret::bs::ERR_GET_INDEX_PATH; 
     LOG(INFO) << "index manager: start load index, path["
         << index_path.c_str() <<"] last_time["
         << last_time <<"] curr_time["<< curr_time <<"]"; 
@@ -102,15 +112,16 @@ int IndexManager::update() {
     index_data_t& index = _index[new_version];
     if (!index.data) {
         index.data = new(std::nothrow) IndexData; 
-        if (!index.data) return 2;
+        if (!index.data) return ret::bs::ERR_NEW_INDEX_DATA;
     }
     if (ret = index.data->load(index_path.c_str())) {
         LOG(ERROR) << "index manager: index_data load error, ret["<<ret<<"]";
-        return 3; 
+        return ret::bs::ERR_LOAD_INDEX_DATA; 
     }
     index.ref = 0;
     index.timestamp = curr_time;
     _latest_version = new_version;
+    update_version_file(_version_conf.c_str(), curr_time);
     gettimeofday(&end, NULL);
     LOG(INFO) << "index manager: load index over! cost[" << TIMEDIFF(start, end) << "] version[" << new_version << "]";
     return 0;

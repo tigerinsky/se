@@ -31,7 +31,7 @@ static void _adapt_response(const se_output_t& output,
                             SeResponse* response) {
     response->__set_err_no(output.err_no);
     response->__set_id(output.id);
-    
+    response->__set_total_num(output.total_num);    
     class NumericAttr numeric_attr;
     for (auto ite : output.search_condition.numeric_filter) {
         numeric_attr.name = ite.name;
