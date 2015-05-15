@@ -1,19 +1,10 @@
 #!/bin/bash
 . ./conf/conf.sh
-. ./script/func.sh
-
-output_file="${FINALLY}_`date +%F`"
 
 if [ ! -d ${WORK_DIR} ]
 then
     rm -rf ${WORK_DIR}
     mkdir -p ${WORK_DIR}
-fi
-
-if [ ! -d ${OUTPUT_DIR} ]
-then
-    rm -rf ${OUTPUT_DIR}
-    mkdir -p ${OUTPUT_DIR}
 fi
 
 date
@@ -29,7 +20,7 @@ fi
 date
 echo 'start merge data'
 ${PYTHON} ${SCRIPT_DIR}/merge_data.py \
-    ${output_file} \
+    ${RAW} \
     ${TWEET} \
     ${ZAN} \
     ${COMMENT} \

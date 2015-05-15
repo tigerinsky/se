@@ -74,14 +74,14 @@ int IndexManager::init(const char* index_conf, bool enable_switch) {
     return 0;
 }
 
-static void update_version_file (const char* path, time_t timestamp) {
+static void update_version_file (const char* path, const char* index_path) {
     if (!path || '\0' == path[0]) return;
     FILE* fp = fopen(path, "w");
     if (!fp) {
         LOG(WARNING) << "index manager: open version file error, path["<< path <<"]";
         return; 
     }
-    (void)fprintf(fp, "%ld", timestamp);
+    (void)fprintf(fp, "%s", index_path);
     (void)fclose(fp);
 }
 
@@ -121,7 +121,7 @@ int IndexManager::update() {
     index.ref = 0;
     index.timestamp = curr_time;
     _latest_version = new_version;
-    update_version_file(_version_file.c_str(), curr_time);
+    update_version_file(_version_file.c_str(), index_path.c_str());
     gettimeofday(&end, NULL);
     LOG(INFO) << "index manager: load index over! cost[" << TIMEDIFF(start, end) << "] version[" << new_version << "]";
     return 0;
