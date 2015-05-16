@@ -148,9 +148,17 @@ static int handle_line(const char* line) {
     // 2. type
     if (next_field(&p, '\t')) return 2;
     brief.set_type(atoi(g_field_buffer));
-    // 3. catalog_id
+    // 3. f_catalog && s_catalog
     if (next_field(&p, '\t')) return 3;
-    int catalog_id = atoi(g_field_buffer);
+    std::string f_catalog = g_field_buffer;
+    if (next_field(&p, '\t')) return 3;
+    std::string s_catalog = g_field_buffer;
+    int catalog_id = g_catalog_reader->get_catalog_id(f_catalog.c_str(), s_catalog.c_str());
+    if (catalog_id <= 0) {
+        LOG(WARNING) << "makeindex: get catalog id error, f_catalog["
+            << f_catalog <<"] s_catalog["<<s_catalog<<"]";
+        return 3;
+    }
     brief.set_catalog_id(catalog_id); 
     //todo add catalog_str && parent_catalog_str
     string catalog_str;
@@ -225,6 +233,8 @@ int makeindex() {
         LOG(WARNING) << "makeindex: init error, ret["<<ret<<"]";
         return 1;
     }
+    int count = 0;
+    int fail_count = 0;
     while (true) {
         if (!fgets(buff, 10240, g_input_fp)) {
             if (feof(g_input_fp)) {
@@ -241,12 +251,19 @@ int makeindex() {
         if (ret) {
             LOG(WARNING) << "makeindex: handle line error, line["
                 << buff << "] ret[" << ret << "]";
-            return 3;
+            ++fail_count;
+            continue;
         }
+        ++count;
+    }
+    if (fail_count * 1.0 / count > 0.1) {
+        LOG(ERROR) << "makeindex: too many fail record, fail["<<fail_count<<"]";
+//return 3; 
     }
     if (g_index_maker->flush()) {
         return 4; 
     }
+    LOG(INFO)<<"makeindex: makeindex finish, s_num["<<count<<"] f_num["<<fail_count<<"]";
     (void)fclose(g_brief_fp);
     (void)fclose(g_input_fp);
     return 0;

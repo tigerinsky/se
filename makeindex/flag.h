@@ -6,7 +6,7 @@
 
 DECLARE_string(input);
 DECLARE_string(output);
-DECLARE_string(conf);
+DECLARE_string(field_conf);
 DECLARE_string(segment_dict);
 DECLARE_string(tag_dict);
 DECLARE_string(catalog_dict);

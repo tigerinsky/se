@@ -35,7 +35,7 @@ class CatalogDataReader {
         //each line in file:
         //catalog_id\tcatalog_name\tparent_catalog_id
         int load(std::string file_name);
-
+        int get_catalog_id(const char* f_catalog, const char* s_catalog);
         int get_id(const std::vector<std::string>& seg_list, int32_t* id, int level);
 
         int get_catalog_name(int32_t id, std::string& name);

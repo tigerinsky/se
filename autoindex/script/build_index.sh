@@ -17,12 +17,12 @@ then
 fi
 
 date
-echo "start makeindex" 
+echo "start makeindex, index[${output}]" 
 cd ${MAKEINDEX_DIR}
 ${BIN_DIR}/makeindex \
     -input=${RAW} \
     -output=$output \
-    -conf=./conf/ \
+    -field_conf=./conf/field.conf \
     -segment_dict=./conf/seg/utf8/ \
     -catalog_dict=./conf/catalog.conf \
     -tag_dict=./conf/tag.conf \

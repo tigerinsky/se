@@ -23,9 +23,6 @@ RAW="${WORK_DIR}/raw"
 TWEET="${WORK_DIR}/tweet"
 ZAN="${WORK_DIR}/zan"
 COMMENT="${WORK_DIR}/comment"
-FINALLY="${OUTPUT_DIR}/finally"
-CATALOG="${WORK_DIR}/catalog"
-TAG="${WORK_DIR}/tag"
 FLAG="${BASE_DIR}/makeindex_flag"
 
 ################# makeindex ###########

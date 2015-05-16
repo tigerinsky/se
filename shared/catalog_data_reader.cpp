@@ -242,4 +242,17 @@ namespace tis {
 
         return 0;
     }
+
+    int CatalogDataReader::get_catalog_id(const char* f_catalog, const char* s_catalog) {
+        auto ite = level_one_map.find(f_catalog);
+        if (ite == level_one_map.end()) {
+            return -1; 
+        }
+        catalog_t* cid = ite->second;
+        int32_t id = binary_search(cid->children, std::string(s_catalog));
+        if (id <= 0) {
+            return -1; 
+        }
+        return catalog_list[id]->id;
+    }
 }

@@ -25,7 +25,6 @@ const char INDEX_PREFIX[] = "index";
 const char HIT_PREFIX[] = "hit";
 const char TERM_FILE[] = "term";
 const char BRIEF_FILE[] = "brief";
-const char FIELD_CONF[] = "field.conf";
 
 const int BS_MAX_OBJ_NUM = 760;
 const int BS_MAX_TERM_NUM = 15;

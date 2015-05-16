@@ -13,7 +13,8 @@ class Tweet(object):
     def __init__(self):
         self.tid = 0
         self.type = 0
-        self.catalog_id = -1
+        self.f_catalog = '' 
+        self.s_catalog = ''
         self.tag = []
         self.zan_num = 0
         self.comment_num = 0
@@ -86,35 +87,6 @@ def _load_comment(file):
                 comment_dict[tid] = 1
     return comment_dict
 
-def _load_catalog_id(file):
-    catalog_dict = {} #name:id
-    logging.info('load catalog [%s]' % (file))
-    
-    with open(file) as f:
-        for index, line in enumerate(f):
-            line = line.strip('\n')
-            item = line.split('\t')
-            catalog_id = item[0]
-            catalog = item[1]
-            parent_id = item[2]
-            parent_catalog = item[3]
-            if parent_id != 0: #是二级分类
-                catalog_dict[parent_catalog+catalog] = catalog_id
-
-    return catalog_dict
-
-def _load_tag_dict(file):
-    tag_dict = {}
-    logging.info('load tag [%s]' % (file))
-
-    with open(file) as f:
-        for index, line in enumerate(f):
-            line = line.strip('\n')
-            item = line.split('\t')
-            tag_name = item[0]
-            tag_id = item[1]
-            tag_dict[tag_name] = tag_id
-
 def _get_score(tweet):
     G = 1.8
     zan_num = int(tweet.zan_num)
@@ -127,46 +99,44 @@ def _get_score(tweet):
 
     return score
 
-
-
-def merge_data(out_file, tweet_file, zan_file, comment_file, catalog_file, tag_file):
+def merge_data(out_file, tweet_file, zan_file, comment_file):
     tweet_dict = _load_tweet(tweet_file)
     zan_dict = _load_zan(zan_file)
     comment_dict = _load_comment(comment_file)
-    catalog_dict = _load_catalog_id(catalog_file)
-    #tag_dict = _load_tag_id(tag_file)
 
     logging.info('total tweet: %d' % (len(tweet_dict)))
     #fp_out = codecs.open(out_file, 'w', "utf-8")
     fp_out = open(out_file, 'w')
     tweet_list = []
     for tid in tweet_dict:
-        info = tweet_dict[tid]
-        tweet = Tweet()
-        tweet.tid = tid 
-        tweet.type = info['type']
+        try:
+            info = tweet_dict[tid]
+            tweet = Tweet()
+            tweet.tid = tid 
+            tweet.type = info['type']
 
-        catalog = info['f_catalog'] + info['s_catalog']
-        catalog_id = catalog_dict.get(catalog, -1)
-        tweet.catalog_id = catalog_id
+            tweet.f_catalog = info['f_catalog']
+            tweet.s_catalog = info['s_catalog']
 
-        zan_num = zan_dict.get(tid, 0)
-        tweet.zan_num = zan_num
-        comment_num = comment_dict.get(tid, 0)
-        tweet.comment_num = comment_num
-        tag = info['tags']
+            zan_num = zan_dict.get(tid, 0)
+            tweet.zan_num = zan_num
+            comment_num = comment_dict.get(tid, 0)
+            tweet.comment_num = comment_num
+            tag = info['tags']
 
-        tweet.tag = tag
-        tweet.desc = info['content']
-        tweet.ctime = info['ctime']
-        if ' '.join(tweet.tag).strip() != '' or tweet.desc.strip() != '':
-            tweet.score = _get_score(tweet)
-            tweet_list.append(tweet)
+            tweet.tag = tag
+            tweet.desc = info['content']
+            tweet.ctime = info['ctime']
+            if ' '.join(tweet.tag).strip() != '' or tweet.desc.strip() != '':
+                tweet.score = _get_score(tweet)
+                tweet_list.append(tweet)
+        except Exception,e:
+             logging.info(traceback.format_exc())
     tweet_list = sorted(tweet_list, key=lambda x:x.score)
 
     for tweet in tweet_list:
-        line = '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % (tweet.tid, tweet.type, tweet.catalog_id, ' '.join(tweet.tag), tweet.zan_num, tweet.comment_num, tweet.desc)
-        logging.info('line:%s' % line)
+        line = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % (tweet.tid, tweet.type, tweet.f_catalog, tweet.s_catalog, ' '.join(tweet.tag), tweet.zan_num, tweet.comment_num, tweet.desc)
+        #logging.info('line:%s' % line)
         fp_out.write(line)
     fp_out.close()
 
@@ -178,11 +148,9 @@ def main():
     tweet_file = sys.argv[2]
     zan_file = sys.argv[3]
     comment_file = sys.argv[4]
-    catalog_file = sys.argv[5]
-    tag_file = sys.argv[6]
-    logging.info('merge_data: output[%s] tweet[%s] zan[%s] comment[%s] catalog[%s] tag[%s]' % (output_file, tweet_file, zan_file, comment_file, catalog_file, tag_file))
+    logging.info('merge_data: output[%s] tweet[%s] zan[%s] comment[%s]' % (output_file, tweet_file, zan_file, comment_file))
     try:
-        merge_data(output_file, tweet_file, zan_file, comment_file, catalog_file, tag_file)
+        merge_data(output_file, tweet_file, zan_file, comment_file)
     except Exception as e:
         logging.warning(traceback.format_exc())
         exit(1)

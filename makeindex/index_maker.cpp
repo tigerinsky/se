@@ -48,12 +48,10 @@ IndexMaker::~IndexMaker() {
     if (_term_fp) (void)fclose(_term_fp);
 }
 
-static int load_field_conf(const char* dir, 
-                           const char* name, 
+static int load_field_conf(const char* path, 
                            std::unordered_map<std::string, field_t>& map) {
     char buf[512];
-    snprintf(buf, 511, "%s/%s", dir, name);
-    FILE* fp = fopen(buf, "r");
+    FILE* fp = fopen(path, "r");
     if (!fp) {
         return 1; 
     }
@@ -144,7 +142,7 @@ int IndexMaker::init() {
         goto fail;
     }
     // 5. field map
-    ret = load_field_conf(FLAGS_conf.c_str(), FIELD_CONF, _field_map);
+    ret = load_field_conf(FLAGS_field_conf.c_str(), _field_map);
     if (ret) {
         LOG(WARNING) << "IndexMaker: load field conf error, ret["<<ret<<"]"; 
         goto fail;
