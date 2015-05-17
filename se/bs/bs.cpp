@@ -16,7 +16,7 @@
 namespace tis { namespace bs {
 
 typedef struct obj_t {
-    int id;
+    int64_t id;
     int obj_id;
     double basic_weight;
 } obj_t;

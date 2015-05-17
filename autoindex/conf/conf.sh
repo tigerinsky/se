@@ -7,6 +7,7 @@ SQL_DIR="${BASE_DIR}/sql/"
 BIN_DIR="${BASE_DIR}/bin/"
 SCRIPT_DIR="${BASE_DIR}/script/"
 WORK_DIR="${BASE_DIR}/data/work/"
+WORK_BAK_DIR="${BASE_DIR}/data/work.bak"
 LOG_DIR="${BASE_DIR}/log/"
 INDEX_DIR="${BASE_DIR}/index/"
 

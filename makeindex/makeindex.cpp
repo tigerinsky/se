@@ -144,7 +144,9 @@ static int handle_line(const char* line) {
 
     // 1. id 
     if (next_field(&p, '\t')) return 1;
-    brief.set_id(atoi(g_field_buffer));
+    int64_t id = 0;
+    if (1 != sscanf(g_field_buffer, "%lld", &id)) return 1;
+    brief.set_id(id);
     // 2. type
     if (next_field(&p, '\t')) return 2;
     brief.set_type(atoi(g_field_buffer));

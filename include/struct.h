@@ -79,7 +79,7 @@ typedef struct as_input_t {
 
 typedef struct as_output_t {
     int err_no;
-    std::vector<int> id;
+    std::vector<int64_t> id;
     int total_num;
     search_condition_t search_condition; 
     catalog_info_t catalog;
@@ -99,7 +99,7 @@ typedef struct bs_input_t {
 
 typedef struct bs_output_t {
     int err_no;
-    std::vector<int> id;
+    std::vector<int64_t> id;
 } bs_output_t;
 }
 // ---- bs end ----

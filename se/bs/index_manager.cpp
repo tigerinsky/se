@@ -115,7 +115,8 @@ int IndexManager::update() {
         if (!index.data) return ret::bs::ERR_NEW_INDEX_DATA;
     }
     if (ret = index.data->load(index_path.c_str())) {
-        LOG(ERROR) << "index manager: index_data load error, ret["<<ret<<"]";
+        LOG(ERROR) << "index manager: index_data load error, ret["
+            <<ret<<"] path["<<index_path<<"]";
         return ret::bs::ERR_LOAD_INDEX_DATA; 
     }
     index.ref = 0;
