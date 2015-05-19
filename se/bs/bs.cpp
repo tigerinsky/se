@@ -96,7 +96,7 @@ int BS::_prepare(const bs_input_t& input, bs_output_t* output) {
     gt_thread_data->output = output;
     output->id.clear();
     gt_thread_data->tag_filt_id.clear(); 
-    for (auto ite : input.search_condition.tag_filter) {
+    for (auto& ite : input.search_condition.tag_filter) {
         int tag_id = 0;
         if (!_tag_data->get_id(ite.tag, &tag_id)) {
             gt_thread_data->tag_filt_id.push_back(tag_id); 
@@ -149,7 +149,7 @@ static int load_index() {
 
 static bool numeric_filter(const Brief* brief, const search_condition_t& condition) {
     //先人工实现
-    for (auto ite : condition.numeric_filter) {
+    for (auto& ite : condition.numeric_filter) {
         int value = 0;
         if (0 == strcmp(ite.name.c_str(), "type")) {
             value = brief->type(); 
@@ -268,7 +268,7 @@ static int _sort() {
 }
 
 static void _copy_result() {
-    for (auto ite : gt_thread_data->obj) {
+    for (auto& ite : gt_thread_data->obj) {
         gt_thread_data->output->id.push_back(ite.id); 
     }
     gt_thread_data->output->err_no = ret::OK;

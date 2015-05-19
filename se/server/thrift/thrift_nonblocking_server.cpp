@@ -33,14 +33,14 @@ static void _adapt_response(const se_output_t& output,
     response->__set_id(output.id);
     response->__set_total_num(output.total_num);    
     class NumericAttr numeric_attr;
-    for (auto ite : output.search_condition.numeric_filter) {
+    for (auto& ite : output.search_condition.numeric_filter) {
         numeric_attr.name = ite.name;
         numeric_attr.low = ite.low;
         numeric_attr.high = ite.high;
         response->search_condition.num_filter.push_back(numeric_attr);
     }
     class TagAttr tag_attr;
-    for (auto ite : output.search_condition.tag_filter) {
+    for (auto& ite : output.search_condition.tag_filter) {
         tag_attr.name = ite.tag; 
         response->search_condition.tag_filter.push_back(tag_attr);
     }

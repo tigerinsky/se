@@ -243,7 +243,7 @@ int IndexMaker::add_field(const char* field, const char* value) {
     // 3. add index 
     _segment->get_all_unique_tokens(tokens);
     //std::vector<token_t>::iterator ite;
-    for (auto ite : tokens) {
+    for (auto& ite : tokens) {
         uint64_t sign = sign64_str(ite.str, ite.len); 
         index_info_t* index_info = __add_index_info();
         if (!index_info) {
@@ -379,7 +379,7 @@ int IndexMaker::flush() {
     int ret = -1;
     term_t term;
     std::sort(_term_arr.begin(), _term_arr.end(), TermCompare);
-    for (auto ite : _term_arr) {
+    for (auto& ite : _term_arr) {
         term_info_t* term_info = ite;
         index_node_t* node = term_info->index;
         int index_num = 0;

@@ -187,7 +187,7 @@ static int handle_line(const char* line) {
     std::vector<std::string> list;
     std::vector<int32_t> tag_id;
     split(g_field_buffer, ' ', list);
-    for (auto ite : list) {
+    for (auto& ite : list) {
         if (g_index_maker->add_field("tag", ite.c_str())) {
             LOG(WARNING) << "makeindex: add tag field error, tag[" << ite << "]";
             return 4;
@@ -199,7 +199,7 @@ static int handle_line(const char* line) {
         }
     }
     std::sort(tag_id.begin(), tag_id.end());
-    for (auto ite : tag_id) {
+    for (auto& ite : tag_id) {
         brief.add_tag_id(ite);
     }
     // 5. zan_num
