@@ -156,31 +156,30 @@ static int handle_line(const char* line) {
     if (next_field(&p, '\t')) return 3;
     std::string s_catalog = g_field_buffer;
     int catalog_id = g_catalog_reader->get_catalog_id(f_catalog.c_str(), s_catalog.c_str());
-    if (catalog_id <= 0) {
-        LOG(WARNING) << "makeindex: get catalog id error, f_catalog["
-            << f_catalog <<"] s_catalog["<<s_catalog<<"]";
-        return 3;
-    }
-    brief.set_catalog_id(catalog_id); 
-    //todo add catalog_str && parent_catalog_str
-    string catalog_str;
-    string parent_catalog_str;
-    ret = g_catalog_reader->get_catalog_name(catalog_id, catalog_str);
-    if (ret == 0) {
-        if (g_index_maker->add_field("catalog", catalog_str.c_str())) {
-            LOG(WARNING) << "makeindex: add catalog field error, catalog["
-                         << catalog_str << "]";
-            return 3;
+    if (catalog_id > 0) {
+        brief.set_catalog_id(catalog_id); 
+        //todo add catalog_str && parent_catalog_str
+        string catalog_str;
+        string parent_catalog_str;
+        ret = g_catalog_reader->get_catalog_name(catalog_id, catalog_str);
+        if (ret == 0) {
+            if (g_index_maker->add_field("catalog", catalog_str.c_str())) {
+                LOG(WARNING) << "makeindex: add catalog field error, catalog["
+                            << catalog_str << "]";
+                return 3;
+            }
         }
-    }
 
-    ret = g_catalog_reader->get_parent_catalog_name(catalog_id, parent_catalog_str);
-    if (ret == 0) {
-        if (g_index_maker->add_field("catalog", parent_catalog_str.c_str())) {
-            LOG(WARNING) << "makeindex: add catalog field error, parent catalog["
-                         << parent_catalog_str << "]";
-            return 3;
+        ret = g_catalog_reader->get_parent_catalog_name(catalog_id, parent_catalog_str);
+        if (ret == 0) {
+            if (g_index_maker->add_field("catalog", parent_catalog_str.c_str())) {
+                LOG(WARNING) << "makeindex: add catalog field error, parent catalog["
+                            << parent_catalog_str << "]";
+                return 3;
+            }
         }
+    } else {
+        brief.set_catalog_id(0); 
     }
     // 4. tag_id 
     if (next_field(&p, '\t')) return 4;
