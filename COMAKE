@@ -14,7 +14,7 @@ DEP('glog', '1.0.0')
 DEP('protobuf', '1.0.0')
 DEP('thrift', '1.0.0')
 DEP('seg', '1.0.2')
-DEP('common_lib', '1.0.4')
+DEP('common_lib', '1.0.5')
 
 se_sources = GLOB("./se/server/thrift/*.thrift ./proto/*.proto ./se/as/*.cpp ./se/bs/*.cpp ./se/da/*.cpp ./se/service/*.cpp ./se/server/thrift/*.cpp ./se/*.cpp ./shared/*.cpp ./index/*.cpp")
 makeindex_sources = GLOB('proto/*.proto ./makeindex/*.cpp ./shared/*.cpp')
