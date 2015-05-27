@@ -118,6 +118,9 @@ static void split(const char* s, char sep, std::vector<std::string>& list) {
         }
         ++end;
     }
+    if (begin != end) {
+        list.push_back(std::string(begin, 0, end - begin)); 
+    }
 }
 
 static int write_brief(Brief& brief) {

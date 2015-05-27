@@ -125,7 +125,7 @@ static int load_index() {
         sign = sign64_str(term_txt.c_str(), term_txt.size());
         term = index_data->locate_term(sign);
         if (!term) {
-            //LOG(WARNING) << "locate term error, sign:"<<sign;
+           // LOG(WARNING) << "locate term error, sign:"<<sign << " term:" << term_txt;
             continue; 
         }
         term_info_t& term_info = gt_thread_data->term[term_num];
@@ -167,6 +167,7 @@ static bool tag_filter(const Brief* brief, const search_condition_t& condition) 
     for (int i = 0, j = 0; i < gt_thread_data->tag_filt_id.size() 
             && j < brief->tag_id_size(); ++i) {
         int filt_tag = gt_thread_data->tag_filt_id[i]; 
+        bool found = false;
         for (;j < brief->tag_id_size(); ++j) {
             int brief_tag = brief->tag_id(j);
             if (brief_tag < filt_tag) {
@@ -174,9 +175,14 @@ static bool tag_filter(const Brief* brief, const search_condition_t& condition) 
             } else if (brief_tag > filt_tag) {
                 return true; 
             } else {
-                ++j;
+                found = true;
                 break; 
             }
+        }
+        if (found) {
+            ++j; 
+        } else {
+            return true; 
         }
     }
     return false;
@@ -239,17 +245,19 @@ static int _recall() {
         heap.push(&(gt_thread_data->term[i])); 
     }
     uint32_t last_filt_obj = -1;
-    while (heap.size()) {
+    uint32_t last_valid_obj = -1;
+    while (heap.size() && gt_thread_data->obj.size() < BS::MAX_RECALL_NUM) {
         term_info_t* term_info = heap.pop(); 
         index_cursor_t& cursor = term_info->index_cursor;
         uint32_t obj_id = cursor.index->obj_id;
         if (last_filt_obj == obj_id) {
             goto next;
         }
-        if (filt(obj_id)) {
+        if (last_valid_obj != obj_id && filt(obj_id)) {
             last_filt_obj = obj_id; 
             goto next;
         }
+        last_valid_obj = obj_id;
         add_obj(obj_id, cursor.index->hit_info);
     next:
         if (--cursor.left) {

@@ -15,6 +15,7 @@ class BS {
 public:
     static const int RET_OK = 0;
     static const int RET_INIT_THREAD_DATA_ERR = 1;
+    static const int MAX_RECALL_NUM = 760;
 
 public:
     BS();

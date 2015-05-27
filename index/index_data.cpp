@@ -100,7 +100,7 @@ int IndexData::_load_term(const char* data_path) {
         LOG(ERROR) << "index data: read term file error, errno["<<errno<<"]"; 
         goto fail;
     }
-    _term_data->num = st.st_size / sizeof(*_term_data); 
+    _term_data->num = st.st_size / sizeof(*_term_data->term); 
     (void)fclose(fp);
     return 0;
 fail:
