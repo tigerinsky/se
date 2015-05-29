@@ -277,6 +277,7 @@ static int index_compare(const void* a, const void* b) {
 int IndexMaker::finish_obj() {
     int ret = -1;
     if (!_obj_index_num) {
+        ++_obj_num;//容错，如果拉数据的脚本没有过滤空数据，这里应该++,否则obj和brief对应不上
         return 0; 
     }
     qsort(_obj_index_buffer,

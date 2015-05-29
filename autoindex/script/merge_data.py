@@ -53,6 +53,8 @@ def _load_tweet(file):
             tweet.tag = item[4].split(',')
             tweet.f_catalog = item[5]
             tweet.ctime = item[6]
+            if ''.join(tweet.desc) == '' and item[3] == '' and ''.join(tweet.tag) == '' and item[5] == '':
+                continue
 
             tweet_dict[tid] = tweet
     return tweet_dict
