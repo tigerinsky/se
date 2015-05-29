@@ -10,3 +10,4 @@ output/
 *.pb.h
 se/server/thrift/*.cpp
 se/server/thrift/*.h
+autoindex/data

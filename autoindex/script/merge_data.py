@@ -18,40 +18,43 @@ class Tweet(object):
         self.tag = []
         self.zan_num = 0
         self.comment_num = 0
-        self.desc = ''
+        self.desc = []
         self.score = -1
         self.ctime = 0
 
 def _get_content(imgs):
-    content = ''
+    content = []
     try:
         imgs = json.loads(imgs)
         for img in imgs:
-            content += img.get('content', '')
+            c = img.get('content', '')
+            if c:
+                content.append(c)
     except Exception, e:
         logging.info("get content error, e[%s]", e)
 
     return content
 
 def _load_tweet(file):
-    tweet_dict = {}#tid:dict(info)
+    tweet_dict = {}#tid:tweet
     with open(file) as f:
         logging.info("load tweet from [%s]" % (file))
         for index, line in enumerate(f):
-            info = {}
             if index == 0:
                 continue
+            tweet = Tweet()
             line = line.strip('\n')
             item = line.split('\t')
-            tid = item[0]
-            info['type'] = item[1]
-            info['content'] = _get_content(item[2])
-            info['s_catalog'] = item[3]
-            info['tags'] = item[4].split(',')
-            info['f_catalog'] = item[5]
-            info['ctime'] = item[6]
+            tid = int(item[0])
+            tweet.tid = tid
+            tweet.type = int(item[1])
+            tweet.desc = _get_content(item[2])
+            tweet.s_catalog = item[3]
+            tweet.tag = item[4].split(',')
+            tweet.f_catalog = item[5]
+            tweet.ctime = item[6]
 
-            tweet_dict[tid] = info
+            tweet_dict[tid] = tweet
     return tweet_dict
 
 def _load_zan(file):
@@ -63,8 +66,7 @@ def _load_zan(file):
                 continue
             line = line.strip('\n')
             item = line.split('\t')
-            tid = item[0]
-            uid = item[1]
+            tid = int(item[0])
             if tid in zan_dict:
                 zan_dict[tid] += 1
             else:
@@ -80,7 +82,7 @@ def _load_comment(file):
                 continue
             line = line.strip('\n')
             item = line.split('\t')
-            tid = item[1]
+            tid = int(item[1])
             if tid in comment_dict:
                 comment_dict[tid] += 1
             else:
@@ -110,32 +112,30 @@ def merge_data(out_file, tweet_file, zan_file, comment_file):
     tweet_list = []
     for tid in tweet_dict:
         try:
-            info = tweet_dict[tid]
-            tweet = Tweet()
-            tweet.tid = tid 
-            tweet.type = info['type']
-
-            tweet.f_catalog = info['f_catalog']
-            tweet.s_catalog = info['s_catalog']
-
+            tweet = tweet_dict[tid]
             zan_num = zan_dict.get(tid, 0)
             tweet.zan_num = zan_num
             comment_num = comment_dict.get(tid, 0)
             tweet.comment_num = comment_num
-            tag = info['tags']
-
-            tweet.tag = tag
-            tweet.desc = info['content']
-            tweet.ctime = info['ctime']
-            if ' '.join(tweet.tag).strip() != '' or tweet.desc.strip() != '':
-                tweet.score = _get_score(tweet)
-                tweet_list.append(tweet)
+            tweet.score = _get_score(tweet)
+            tweet_list.append(tweet)
         except Exception,e:
              logging.info(traceback.format_exc())
     tweet_list = sorted(tweet_list, key=lambda x:x.score)
 
     for tweet in tweet_list:
-        line = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % (tweet.tid, tweet.type, tweet.f_catalog, tweet.s_catalog, ' '.join(tweet.tag), tweet.zan_num, tweet.comment_num, tweet.desc)
+        #line = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' % (tweet.tid, tweet.type, tweet.f_catalog, tweet.s_catalog, ' '.join(tweet.tag), tweet.zan_num, tweet.comment_num, tweet.desc)
+        info = {}
+        info['tid'] = tweet.tid
+        info['type'] = tweet.type
+        info['f_catalog'] = tweet.f_catalog
+        info['s_catalog'] = tweet.s_catalog
+        info['tag'] = tweet.tag
+        info['zan_num'] = tweet.zan_num
+        info['comment_num'] = tweet.comment_num
+        info['desc'] = tweet.desc
+        line = '%s\n' % json.dumps(info)
+
         #logging.info('line:%s' % line)
         fp_out.write(line)
     fp_out.close()

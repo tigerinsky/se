@@ -8,8 +8,8 @@ DEFINE_string(input, "./input", "input file");
 DEFINE_string(output, "./output", "output path");
 DEFINE_string(field_conf, "./conf/field.conf", "field conf path");
 DEFINE_string(segment_dict, "./conf/seg/utf8", "segment dict");
-DEFINE_string(catalog_dict, "./conf/catalog.dict", "catalog dict");
-DEFINE_string(tag_dict, "./conf/tag.dict", "tag dict");
+DEFINE_string(catalog_dict, "./conf/catalog.conf", "catalog dict");
+DEFINE_string(tag_dict, "./conf/tag.conf", "tag dict");
 
 int main (int argc, char** argv) {
     ::google::ParseCommandLineFlags(&argc, &argv, true);

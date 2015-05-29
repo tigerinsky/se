@@ -9,6 +9,10 @@
 #include "proto/brief.pb.h"
 #include "../shared/catalog_data_reader.h"
 #include "../shared/tag_data_reader.h"
+#include "json.h"
+#include "exception.h"
+
+using namespace tis::json;
 
 namespace tis {
 
@@ -138,86 +142,92 @@ static int write_brief(Brief& brief) {
 }
 
 static int handle_line(const char* line) {
-    //id\ttype\tcatalog_id\ttag\tzan_num\tcomment_num\tdesc
     int ret =  -1;
     const char* p = line; 
     Brief brief;
 
     g_index_maker->start_obj();
+    try {
+        Json* json = new(std::nothrow) Json;
+        JsonObj* obj = json->deserialize(p);
+        JsonMap& map = *((JsonMap*)obj);
 
-    // 1. id 
-    if (next_field(&p, '\t')) return 1;
-    int64_t id = 0;
-    if (1 != sscanf(g_field_buffer, "%lld", &id)) return 1;
-    brief.set_id(id);
-    // 2. type
-    if (next_field(&p, '\t')) return 2;
-    brief.set_type(atoi(g_field_buffer));
-    // 3. f_catalog && s_catalog
-    if (next_field(&p, '\t')) return 3;
-    std::string f_catalog = g_field_buffer;
-    if (next_field(&p, '\t')) return 3;
-    std::string s_catalog = g_field_buffer;
-    int catalog_id = g_catalog_reader->get_catalog_id(f_catalog.c_str(), s_catalog.c_str());
-    if (catalog_id > 0) {
-        brief.set_catalog_id(catalog_id); 
-        //todo add catalog_str && parent_catalog_str
-        string catalog_str;
-        string parent_catalog_str;
-        ret = g_catalog_reader->get_catalog_name(catalog_id, catalog_str);
-        if (ret == 0) {
-            if (g_index_maker->add_field("catalog", catalog_str.c_str())) {
+        //1:id
+        int64_t id = 0;
+        id = ((JsonNumber*)(map["tid"]))->to_int64();
+        brief.set_id(id);
+        //2:type
+        int type = ((JsonNumber*)(map["type"]))->to_int64();
+        brief.set_type(type);
+        //3: f_catalog && s_catalog
+        const char* f_catalog = ((JsonString*)(map["f_catalog"]))->c_str();
+        const char* s_catalog = ((JsonString*)(map["s_catalog"]))->c_str();
+
+        int catalog_id = g_catalog_reader->get_catalog_id(f_catalog, s_catalog);
+        if (catalog_id > 0) {
+            brief.set_catalog_id(catalog_id);
+            if (g_index_maker->add_field("catalog", f_catalog)) {
                 LOG(WARNING) << "makeindex: add catalog field error, catalog["
-                            << catalog_str << "]";
+                            << f_catalog << "]";
                 return 3;
+            }
+
+            if (g_index_maker->add_field("catalog", s_catalog)) {
+                LOG(WARNING) << "makeindex: add catalog field error, catalog["
+                            << s_catalog << "]";
+                return 3;
+            }
+
+        } else {
+            brief.set_catalog_id(0);
+        }
+
+        //4: tag_id
+        JsonArray *tag_array = (JsonArray*)map["tag"];
+        std::vector<int32_t> tag_id;
+        for (int i = 0; i < tag_array->size(); i++) {
+            JsonString* tag = (JsonString*)(tag_array->get(i));
+            if (g_index_maker->add_field("tag", tag->c_str())) {
+                LOG(WARNING) << "makeindex: add tag field error, tag[" << tag << "]";
+                return 4;
+            }
+
+            int32_t id = 0; 
+            ret = g_tag_reader->get_id(tag->c_str(), &id);
+            if (!ret) {
+                tag_id.push_back(id);
             }
         }
 
-        ret = g_catalog_reader->get_parent_catalog_name(catalog_id, parent_catalog_str);
-        if (ret == 0) {
-            if (g_index_maker->add_field("catalog", parent_catalog_str.c_str())) {
-                LOG(WARNING) << "makeindex: add catalog field error, parent catalog["
-                            << parent_catalog_str << "]";
-                return 3;
+        std::sort(tag_id.begin(), tag_id.end());
+        for (auto& ite : tag_id) {
+            brief.add_tag_id(ite);
+        }
+
+        //5:zan_num
+        JsonNumber* zan_num = (JsonNumber*)map["zan_num"];
+        brief.set_zan_num(zan_num->to_int64());
+
+        //6:comment_num
+        JsonNumber* comment_num = (JsonNumber*)map["comment_num"];
+        brief.set_comment_num(comment_num->to_int64());
+
+        //7:des
+        JsonArray *desc_array = (JsonArray*)map["desc"];
+        for (int i = 0; i < desc_array->size(); i++) {
+            JsonString* desc = (JsonString*)(desc_array->get(i));
+            ret = g_index_maker->add_field("description", desc->c_str());
+            if (ret) {
+                LOG(WARNING) << "makindex: add desc field error, desc[" << desc << "]";
+                return 7;
             }
         }
-    } else {
-        brief.set_catalog_id(0); 
+    } catch (JsonException& ex) {
+        LOG(WARNING) << "handle line exception[" << ex.what() << "]";
+
+        return -1;
     }
-    // 4. tag_id 
-    if (next_field(&p, '\t')) return 4;
-    std::vector<std::string> list;
-    std::vector<int32_t> tag_id;
-    split(g_field_buffer, ' ', list);
-    for (auto& ite : list) {
-        if (g_index_maker->add_field("tag", ite.c_str())) {
-            LOG(WARNING) << "makeindex: add tag field error, tag[" << ite << "]";
-            return 4;
-        }
-        int32_t id = 0; 
-        ret = g_tag_reader->get_id(ite, &id);
-        if (!ret) {
-            tag_id.push_back(id);
-        }
-    }
-    std::sort(tag_id.begin(), tag_id.end());
-    for (auto& ite : tag_id) {
-        brief.add_tag_id(ite);
-    }
-    // 5. zan_num
-    if (next_field(&p, '\t')) return 5;
-    brief.set_zan_num(atoi(g_field_buffer));
-    // 6. comment_num
-    if (next_field(&p, '\t')) return 6;
-    brief.set_comment_num(atoi(g_field_buffer));
-    // 7. des
-    if (next_field(&p, '\t')) return 7;
-    ret = g_index_maker->add_field("description", g_field_buffer);
-    if (ret) {
-        LOG(WARNING) << "makeindex: add desc field error";
-        return 7;
-    }
-    //
+
     ret = write_brief(brief);
     if (ret) {
         LOG(WARNING) << "makeindex: write brief error"; 
