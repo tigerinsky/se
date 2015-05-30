@@ -164,8 +164,7 @@ static bool numeric_filter(const Brief* brief, const search_condition_t& conditi
 }
 
 static bool tag_filter(const Brief* brief, const search_condition_t& condition) {
-    for (int i = 0, j = 0; i < gt_thread_data->tag_filt_id.size() 
-            && j < brief->tag_id_size(); ++i) {
+    for (int i = 0, j = 0; i < gt_thread_data->tag_filt_id.size(); ++i) {
         int filt_tag = gt_thread_data->tag_filt_id[i]; 
         bool found = false;
         for (;j < brief->tag_id_size(); ++j) {
