@@ -35,3 +35,4 @@ function dump_data() {
 dump_data ${SQL_DIR}/get_all_tweet.sql ${TWEET} || exit 1
 dump_data ${SQL_DIR}/get_all_zan.sql ${ZAN} || exit 1
 dump_data ${SQL_DIR}/get_all_comment.sql ${COMMENT} || exit 1
+dump_data ${SQL_DIR}/get_all_resource.sql ${RESOURCE} || exit 1
