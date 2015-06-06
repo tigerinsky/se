@@ -22,9 +22,17 @@ class Tweet(object):
         self.score = -1
         self.ctime = 0
 
-def _get_content(resource_ids, resource_dict):
+def _get_content(resource_ids, resource_dict, imgs):
     content = []
     if resource_ids == None or resource_ids == 'NULL' or resource_ids == '':
+        try:
+            imgs = json.loads(imgs)
+            for img in imgs:
+                c = img.get('content', '') 
+                if c:
+                    content.append(c)
+        except Exception, e:
+            logging.info("get content error, e[%s]", e)
         return content
 
     resources_id_list = map(int, resource_ids.split(','))
@@ -60,7 +68,7 @@ def _load_tweet(file, resource_dict):
             tid = int(item[0])
             tweet.tid = tid
             tweet.type = int(item[1])
-            tweet.desc = _get_content(item[7], resource_dict)
+            tweet.desc = _get_content(item[7], resource_dict, item[2])
             tweet.s_catalog = item[3]
             tweet.tag = item[4].split(',')
             tweet.f_catalog = item[5]
