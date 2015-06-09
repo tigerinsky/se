@@ -110,10 +110,9 @@ int IndexManager::update() {
     struct timeval end;
     gettimeofday(&start, NULL);
     index_data_t& index = _index[new_version];
-    if (!index.data) {
-        index.data = new(std::nothrow) IndexData; 
-        if (!index.data) return ret::bs::ERR_NEW_INDEX_DATA;
-    }
+    if (index.data) delete index.data; 
+    index.data = new(std::nothrow) IndexData; 
+    if (!index.data) return ret::bs::ERR_NEW_INDEX_DATA;
     if (ret = index.data->load(index_path.c_str())) {
         LOG(ERROR) << "index manager: index_data load error, ret["
             <<ret<<"] path["<<index_path<<"]";
