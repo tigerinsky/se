@@ -22,20 +22,40 @@ class Tweet(object):
         self.score = -1
         self.ctime = 0
 
-def _get_content(imgs):
+def _get_content(resource_ids, resource_dict, imgs):
     content = []
-    try:
-        imgs = json.loads(imgs)
-        for img in imgs:
-            c = img.get('content', '')
-            if c:
-                content.append(c)
-    except Exception, e:
-        logging.info("get content error, e[%s]", e)
+    if resource_ids == None or resource_ids == 'NULL' or resource_ids == '':
+        try:
+            imgs = json.loads(imgs)
+            for img in imgs:
+                c = img.get('content', '') 
+                if c:
+                    content.append(c)
+        except Exception, e:
+            logging.info("get content error, e[%s]", e)
+        return content
+
+    resources_id_list = map(int, resource_ids.split(','))
+    for rid in resources_id_list:
+        content.append(resource_dict[rid])
 
     return content
 
-def _load_tweet(file):
+def _load_resource(file):
+    resource_dict = {} #resource_id:descri
+    with open(file) as f:
+        for index, line in enumerate(f):
+            if index == 0:
+                continue
+            line = line.strip('\n')
+            item = line.split('\t')
+            resource_id = int(item[0])
+            resource_dict[resource_id] = item[1]
+
+    return resource_dict
+            
+
+def _load_tweet(file, resource_dict):
     tweet_dict = {}#tid:tweet
     with open(file) as f:
         logging.info("load tweet from [%s]" % (file))
@@ -48,7 +68,7 @@ def _load_tweet(file):
             tid = int(item[0])
             tweet.tid = tid
             tweet.type = int(item[1])
-            tweet.desc = _get_content(item[2])
+            tweet.desc = _get_content(item[7], resource_dict, item[2])
             tweet.s_catalog = item[3]
             tweet.tag = item[4].split(',')
             tweet.f_catalog = item[5]
@@ -103,8 +123,9 @@ def _get_score(tweet):
 
     return score
 
-def merge_data(out_file, tweet_file, zan_file, comment_file):
-    tweet_dict = _load_tweet(tweet_file)
+def merge_data(out_file, tweet_file, zan_file, comment_file, resource_file):
+    resource_dict = _load_resource(resource_file)
+    tweet_dict = _load_tweet(tweet_file, resource_dict)
     zan_dict = _load_zan(zan_file)
     comment_dict = _load_comment(comment_file)
 
@@ -143,16 +164,17 @@ def merge_data(out_file, tweet_file, zan_file, comment_file):
     fp_out.close()
 
 def main():
-    if 7 != len(sys.argv):
+    if 6 != len(sys.argv):
         logging.warning('cmd args error')
         exit(1)
     output_file = sys.argv[1]
     tweet_file = sys.argv[2]
     zan_file = sys.argv[3]
     comment_file = sys.argv[4]
-    logging.info('merge_data: output[%s] tweet[%s] zan[%s] comment[%s]' % (output_file, tweet_file, zan_file, comment_file))
+    resource_file = sys.argv[5]
+    logging.info('merge_data: output[%s] tweet[%s] zan[%s] comment[%s] resource[%s]' % (output_file, tweet_file, zan_file, comment_file, resource_file))
     try:
-        merge_data(output_file, tweet_file, zan_file, comment_file)
+        merge_data(output_file, tweet_file, zan_file, comment_file, resource_file)
     except Exception as e:
         logging.warning(traceback.format_exc())
         exit(1)

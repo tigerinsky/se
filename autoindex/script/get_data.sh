@@ -24,8 +24,7 @@ ${PYTHON} ${SCRIPT_DIR}/merge_data.py \
     ${TWEET} \
     ${ZAN} \
     ${COMMENT} \
-    ${CATALOG} \
-    ${TAG}
+    ${RESOURCE}
 if [ $? -ne 0 ]
 then
     date
